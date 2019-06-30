@@ -34,55 +34,55 @@ export default {
   data() {
     // 验证密码
     const checkPassword = function(rule, value, callback) {
-      const reg = /^[0-9a-zA-Z_]+$/;
-      if (!reg.test(value)) callback(new Error("只能输入数字、字母和下划线"));
-      else callback();
-    };
+      const reg = /^[0-9a-zA-Z_]+$/
+      if (!reg.test(value)) callback(new Error('只能输入数字、字母和下划线'))
+      else callback()
+    }
     return {
       loginForm: {
-        username: "",
-        password: ""
+        username: '',
+        password: ''
       },
       // 表单验证
       loginFormRules: {
         username: [
-          { required: true, message: "请输入登录账号", trigger: "blur" }
+          { required: true, message: '请输入登录账号', trigger: 'blur' }
         ],
         password: [
-          { required: true, message: "请输入登录密码", trigger: "blur" },
-          { validator: checkPassword, trigger: "blur" }
+          { required: true, message: '请输入登录密码', trigger: 'blur' },
+          { validator: checkPassword, trigger: 'blur' }
         ]
       }
-    };
+    }
   },
   methods: {
     // 重置表单
     resetLoginForm() {
-      this.$refs.loginFormRef.resetFields();
+      this.$refs.loginFormRef.resetFields()
     },
     // 登录
     login() {
       // 验证表单
       this.$refs.loginFormRef.validate(async valid => {
         // 表单数据不符合验证规则，直接退出函数
-        if (!valid) return;
+        if (!valid) return
         // 发送请求，解构赋值data
-        const { data: result } = await this.$http.post("login", this.loginForm);
+        const { data: result } = await this.$http.post('login', this.loginForm)
         // 稍后删除
-        console.log(result);
+        console.log(result)
         // 如果状态不为200，提示信息并退出
         if (result.meta.status !== 200)
-          return this.$message.error(result.meta.msg);
+          return this.$message.error(result.meta.msg)
         // 登陆成功
-        this.$message.success("登录成功!");
+        this.$message.success('登录成功!')
         // 保存token
-        window.sessionStorage.setItem("token", result.data.token);
+        window.sessionStorage.setItem('token', result.data.token)
         // 编程式导航至home
-        this.$router.push("/home");
-      });
+        this.$router.push('/home')
+      })
     }
   }
-};
+}
 </script>
 
 <style lang="less" scoped>
