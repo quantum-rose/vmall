@@ -3,19 +3,20 @@
     <div class="login-box">
       <!-- 头像 -->
       <div class="avatar-box">
-        <img src="../assets/images/logo.png" alt />
+        <!-- <img src="../assets/images/logo.png" alt /> -->
+        <el-avatar :size="avatarSize" :src="avatarUrl"></el-avatar>
       </div>
       <!-- 表单 -->
       <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" class="login-form">
         <!-- 用户名 -->
         <el-form-item prop="username">
-          <el-input v-model="loginForm.username" prefix-icon="iconfont icon-user"></el-input>
+          <el-input v-model.trim="loginForm.username" prefix-icon="iconfont icon-user"></el-input>
         </el-form-item>
         <!-- 密码 -->
         <el-form-item prop="password">
           <el-input
             type="password"
-            v-model="loginForm.password"
+            v-model.trim="loginForm.password"
             prefix-icon="iconfont icon-3702mima"
           ></el-input>
         </el-form-item>
@@ -33,12 +34,15 @@
 export default {
   data() {
     // 验证密码
-    const checkPassword = function(rule, value, callback) {
+    var checkPassword = (rule, value, callback) => {
       const reg = /^[0-9a-zA-Z_]+$/
-      if (!reg.test(value)) callback(new Error('只能输入数字、字母和下划线'))
-      else callback()
+      if (reg.test(value)) return callback()
+      callback(new Error('只能输入数字、字母和下划线'))
     }
     return {
+      avatarSize: 130,
+      avatarUrl:
+        'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       loginForm: {
         username: '',
         password: ''
@@ -68,11 +72,10 @@ export default {
         if (!valid) return
         // 发送请求，解构赋值data
         const { data: result } = await this.$http.post('login', this.loginForm)
-        // 稍后删除
-        console.log(result)
         // 如果状态不为200，提示信息并退出
-        if (result.meta.status !== 200)
+        if (result.meta.status !== 200) {
           return this.$message.error(result.meta.msg)
+        }
         // 登陆成功
         this.$message.success('登录成功!')
         // 保存token
@@ -99,7 +102,7 @@ export default {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background-color: #fff;
+  background-color: #fffe;
 
   .avatar-box {
     height: 130px;
