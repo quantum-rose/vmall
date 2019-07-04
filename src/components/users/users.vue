@@ -142,10 +142,11 @@ export default {
   created() {
     // users组件创建后获取用户信息
     this.getUserList()
-    console.log(this.currentMenu)
   },
-  beforeDestory() {},
-  props: ['current-menu'],
+  destroyed() {
+    // user组件销毁后重置当前选中菜单项
+    this.$emit('reset-current-menu')
+  },
   data() {
     // 验证邮箱地址
     var checkEmail = (rule, value, callback) => {

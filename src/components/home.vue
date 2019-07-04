@@ -18,6 +18,7 @@
         </div>
         <!-- 导航菜单 -->
         <el-menu
+          ref="navMenu"
           background-color="#333"
           text-color="#fff"
           active-text-color="#87ceeb"
@@ -46,7 +47,7 @@
       </el-aside>
       <!-- 主体区域 -->
       <el-main>
-        <router-view :current-menu="currentMenu"></router-view>
+        <router-view @reset-current-menu="resetCurrentMenu"></router-view>
       </el-main>
     </el-container>
   </el-container>
@@ -103,6 +104,12 @@ export default {
     saveNavStatus(path) {
       window.sessionStorage.setItem('currentMenu', path)
       this.currentMenu = path
+    },
+    // 重置当前选中菜单项的标识
+    resetCurrentMenu() {
+      this.$refs.navMenu.close(this.currentMenu)
+      this.currentMenu = null
+      window.sessionStorage.removeItem('currentMenu')
     }
   }
 }
