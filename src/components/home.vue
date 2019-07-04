@@ -13,7 +13,9 @@
       <!-- 侧边栏 -->
       <el-aside :width="isCollapse?'64px':'200px'">
         <!-- 折叠和展开菜单的按钮 -->
-        <div class="toggle-menu" @click="toggleMenu">|||</div>
+        <div class="toggle-menu" @click="toggleMenu">
+          <i :class="isCollapse?'el-icon-s-unfold':'el-icon-s-fold'"></i>
+        </div>
         <!-- 导航菜单 -->
         <el-menu
           background-color="#333"
@@ -44,7 +46,7 @@
       </el-aside>
       <!-- 主体区域 -->
       <el-main>
-        <router-view></router-view>
+        <router-view :current-menu="currentMenu"></router-view>
       </el-main>
     </el-container>
   </el-container>
@@ -151,9 +153,14 @@ export default {
   line-height: 24px;
   text-align: center;
   background-color: #666;
-  color: #fff;
-  font-size: 14px;
+  color: #aaa;
+  font-size: 24px;
+  font-weight: 100;
   letter-spacing: 0.2rem;
   cursor: pointer;
+}
+
+.toggle-menu:hover {
+  color: #fff;
 }
 </style>
