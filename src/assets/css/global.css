@@ -18,3 +18,12 @@ body,
   margin-top: 15px;
   margin-bottom: 15px;
 }
+
+.vcenter {
+  display: flex;
+  align-items: center;
+}
+
+.text-right {
+  text-align: right;
+}

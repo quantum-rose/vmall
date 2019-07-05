@@ -31,7 +31,7 @@
         <el-table-column prop="email" label="邮箱"></el-table-column>
         <el-table-column prop="mobile" label="电话"></el-table-column>
         <el-table-column prop="role_name" label="角色"></el-table-column>
-        <el-table-column label="状态">
+        <el-table-column label="状态" width="60px">
           <template v-slot="scope">
             <!-- switch状态改变后触发change事件 -->
             <el-switch v-model="scope.row.mg_state" @change="changeUserState(scope.row)"></el-switch>
@@ -52,7 +52,12 @@
               @click="removeUser(scope.row.id)"
             ></el-button>
             <el-tooltip effect="dark" content="分配角色" placement="top-start" :enterable="false">
-              <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+              <el-button
+                type="warning"
+                icon="el-icon-setting"
+                size="mini"
+                @click="showAllotRoleDialog(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -73,7 +78,7 @@
     <el-dialog
       title="添加用户"
       :visible.sync="addDialogVisible"
-      width="50%"
+      width="30%"
       @close="resetForm('addFormRef')"
     >
       <!-- 表单 -->
@@ -81,7 +86,7 @@
         :model="addForm"
         :rules="formRules"
         ref="addFormRef"
-        label-width="80px"
+        label-width="70px"
         class="demo-ruleForm"
       >
         <el-form-item label="用户名" prop="username">
@@ -108,7 +113,7 @@
     <el-dialog
       title="修改用户"
       :visible.sync="editDialogVisible"
-      width="50%"
+      width="30%"
       @close="resetForm('editFormRef')"
     >
       <!-- 表单 -->
@@ -116,7 +121,7 @@
         :model="editForm"
         :rules="formRules"
         ref="editFormRef"
-        label-width="80px"
+        label-width="70px"
         class="demo-ruleForm"
       >
         <el-form-item label="用户名">
@@ -135,6 +140,39 @@
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 分配角色的对话框 -->
+    <el-dialog title="分配角色" :visible.sync="allotRoleDialogVisible" width="30%">
+      <el-row class="vcenter">
+        <el-col :span="5" class="text-right">用户名：</el-col>
+        <el-col :span="19">
+          <el-tag type="info">{{userInfo.username}}</el-tag>
+        </el-col>
+      </el-row>
+      <el-row class="vcenter">
+        <el-col :span="5" class="text-right">邮箱：</el-col>
+        <el-col :span="19">
+          <el-tag type="info">{{userInfo.email}}</el-tag>
+        </el-col>
+      </el-row>
+      <el-row class="vcenter">
+        <el-col :span="5" class="text-right">角色名称：</el-col>
+        <el-col :span="19">
+          <el-select v-model="roleId" placeholder="请选择" size="small">
+            <el-option
+              v-for="item in rolesList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="allotRoleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="allotRole">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -142,10 +180,6 @@ export default {
   created() {
     // users组件创建后获取用户信息
     this.getUserList()
-  },
-  destroyed() {
-    // user组件销毁后重置当前选中菜单项
-    this.$emit('reset-current-menu')
   },
   data() {
     // 验证邮箱地址
@@ -175,6 +209,8 @@ export default {
       addDialogVisible: false,
       // 修改用户对话框是否可见的标识
       editDialogVisible: false,
+      // 分配角色对话框是否可见的标识
+      allotRoleDialogVisible: false,
       // 添加用户的表单数据对象
       addForm: {
         username: '',
@@ -184,6 +220,12 @@ export default {
       },
       // 修改用户的表单数据对象
       editForm: {},
+      // 要分配角色的当前用户信息
+      userInfo: {},
+      // 要分配的角色 id
+      roleId: null,
+      // 角色列表数据对象
+      rolesList: [],
       // 表单验证规则
       formRules: {
         username: [
@@ -256,7 +298,6 @@ export default {
       if (result.meta.status !== 200) {
         return this.$message.error(result.meta.msg)
       }
-      this.$message.success(result.meta.msg)
       this.editForm = result.data
       this.editDialogVisible = true
     },
@@ -291,21 +332,40 @@ export default {
           if (result.meta.status !== 200) {
             return this.$message.error(result.meta.msg)
           }
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+          this.$message.success(result.meta.msg)
           this.getUserList()
         })
-        .catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
-        })
+        .catch(() => this.$message.info('已取消删除'))
+    },
+    // 展示分配权限的对话框
+    async showAllotRoleDialog(userInfo) {
+      const { data: result } = await this.$http.get('roles')
+      if (result.meta.status !== 200) {
+        return this.$message.error(result.meta.msg)
+      }
+      this.rolesList = result.data
+      this.userInfo = userInfo
+      this.allotRoleDialogVisible = true
+    },
+    async allotRole() {
+      const { data: result } = await this.$http.put(
+        `users/${this.userInfo.id}/role`,
+        {
+          rid: this.roleId
+        }
+      )
+      if (result.meta.status !== 200) {
+        return this.$message.error(result.meta.msg)
+      }
+      this.$message.success(result.meta.msg)
+      this.getUserList()
+      this.allotRoleDialogVisible = false
     }
   }
 }
 </script>
 <style lang="less" scoped>
+.el-col {
+  margin-bottom: 10px;
+}
 </style>

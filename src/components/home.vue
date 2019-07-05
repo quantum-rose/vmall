@@ -68,7 +68,7 @@ export default {
       // 菜单图标映射
       menuIcon: {
         '125': 'el-icon-user-solid',
-        '103': 'el-icon-s-tools',
+        '103': 'el-icon-monitor',
         '101': 'el-icon-s-goods',
         '102': 'el-icon-s-order',
         '145': 'el-icon-s-data'
@@ -105,9 +105,12 @@ export default {
       window.sessionStorage.setItem('currentMenu', path)
       this.currentMenu = path
     },
-    // 重置当前选中菜单项的标识
+    // welcome 组件创建后触发
     resetCurrentMenu() {
+      console.log(this.$refs.navMenu)
+      // 关闭已展开的子导航菜单
       this.$refs.navMenu.close(this.currentMenu)
+      // 重置当前选中菜单项的标识
       this.currentMenu = null
       window.sessionStorage.removeItem('currentMenu')
     }
@@ -151,6 +154,7 @@ export default {
   }
 
   .el-main {
+    height: 100%;
     background-color: #eee;
   }
 }
