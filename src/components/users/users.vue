@@ -347,6 +347,7 @@ export default {
       this.userInfo = userInfo
       this.allotRoleDialogVisible = true
     },
+    // 分配角色
     async allotRole() {
       const { data: result } = await this.$http.put(
         `users/${this.userInfo.id}/role`,
