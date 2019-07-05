@@ -27,3 +27,7 @@ body,
 .text-right {
   text-align: right;
 }
+
+.el-scrollbar__view.el-cascader-menu__list {
+  max-height: 200px;
+}

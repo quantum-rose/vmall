@@ -7,7 +7,7 @@
         <span>VMall后台管理系统</span>
       </div>
       <!-- 登出 -->
-      <el-button @click="logout" type="info">退出</el-button>
+      <el-button @click="logout" type="info" size="small">退出</el-button>
     </el-header>
     <el-container>
       <!-- 侧边栏 -->

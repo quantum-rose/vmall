@@ -82,13 +82,7 @@
       @close="resetForm('addFormRef')"
     >
       <!-- 表单 -->
-      <el-form
-        :model="addForm"
-        :rules="formRules"
-        ref="addFormRef"
-        label-width="70px"
-        class="demo-ruleForm"
-      >
+      <el-form :model="addForm" :rules="formRules" ref="addFormRef" label-width="70px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model.trim="addForm.username"></el-input>
         </el-form-item>
@@ -117,13 +111,7 @@
       @close="resetForm('editFormRef')"
     >
       <!-- 表单 -->
-      <el-form
-        :model="editForm"
-        :rules="formRules"
-        ref="editFormRef"
-        label-width="70px"
-        class="demo-ruleForm"
-      >
+      <el-form :model="editForm" :rules="formRules" ref="editFormRef" label-width="70px">
         <el-form-item label="用户名">
           <el-input v-model.trim="editForm.username" disabled></el-input>
         </el-form-item>
