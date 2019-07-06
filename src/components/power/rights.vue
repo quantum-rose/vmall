@@ -6,9 +6,10 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>权限列表</el-breadcrumb-item>
     </el-breadcrumb>
+    
     <!-- 卡片视图 -->
     <el-card>
-      <el-table :data="rightsList" border stripe>
+      <el-table :data="rightsList" border stripe :max-height="maxTableHeight">
         <el-table-column type="index"></el-table-column>
         <el-table-column prop="authName" label="权限名称"></el-table-column>
         <el-table-column prop="path" label="路径"></el-table-column>
@@ -28,12 +29,20 @@ export default {
   created() {
     this.getRightsList()
   },
+  mounted() {
+    window.onresize = () => {
+      this.maxTableHeight = window.innerHeight - 202
+    }
+  },
   data() {
     return {
-      rightsList: []
+      // 权限数据列表
+      rightsList: [],
+      maxTableHeight: window.innerHeight - 202
     }
   },
   methods: {
+    // 获取权限列表
     async getRightsList() {
       const { data: result } = await this.$http.get('rights/list')
       if (result.meta.status !== 200) {

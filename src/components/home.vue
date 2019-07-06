@@ -29,7 +29,7 @@
           :default-active="currentMenu"
         >
           <el-submenu :index="item.path" v-for="item in menuList" :key="item.id">
-            <template slot="title">
+            <template v-slot:title>
               <i :class="menuIcon[item.id]"></i>
               <span>{{item.authName}}</span>
             </template>
@@ -107,7 +107,6 @@ export default {
     },
     // welcome 组件创建后触发
     resetCurrentMenu() {
-      console.log(this.$refs.navMenu)
       // 关闭已展开的子导航菜单
       this.$refs.navMenu.close(this.currentMenu)
       // 重置当前选中菜单项的标识

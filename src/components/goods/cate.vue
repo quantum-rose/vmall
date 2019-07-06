@@ -6,6 +6,7 @@
       <el-breadcrumb-item>商品管理</el-breadcrumb-item>
       <el-breadcrumb-item>商品列表</el-breadcrumb-item>
     </el-breadcrumb>
+
     <!-- 卡片视图 -->
     <el-card>
       <el-row>
@@ -13,39 +14,55 @@
           <el-button type="primary" @click="showAddCatDialog">添加分类</el-button>
         </el-col>
       </el-row>
+
       <!-- 树形表格 -->
-      <tree-table
+      <el-table
         :data="cateList"
-        :columns="columns"
-        :expand-type="false"
-        :selectable="false"
-        show-index
-        index-text="#"
+        row-key="cat_id"
         border
+        tripe
+        lazy
+        :load="lazyLoad"
+        :tree-props="{children: '', hasChildren: 'children'}"
       >
-        <!-- 是否有效 -->
-        <template slot="isok" slot-scope="scope">
-          <i v-if="scope.row.cat_deleted==0" style="color:#67C23A" class="el-icon-success"></i>
-          <i v-if="scope.row.cat_deleted==1" style="color:#F56C6C" class="el-icon-error"></i>
-        </template>
+        <el-table-column prop="cat_name" label="分类名称"></el-table-column>
+        <el-table-column label="是否有效">
+          <template v-slot="scope">
+            <i
+              v-if="scope.row.cat_deleted==0"
+              style="color:#67C23A;font-size:18px"
+              class="el-icon-success"
+            ></i>
+            <i
+              v-if="scope.row.cat_deleted==1"
+              style="color:#F56C6C;font-size:18px"
+              class="el-icon-error"
+            ></i>
+          </template>
+        </el-table-column>
         <!-- 排序 -->
-        <template slot="order" slot-scope="scope">
-          <el-tag v-if="scope.row.cat_level==0">一级</el-tag>
-          <el-tag v-if="scope.row.cat_level==1" type="success">二级</el-tag>
-          <el-tag v-if="scope.row.cat_level==2" type="warning">三级</el-tag>
-        </template>
+        <el-table-column label="排序">
+          <template v-slot="scope">
+            <el-tag v-if="scope.row.cat_level==0">一级</el-tag>
+            <el-tag v-if="scope.row.cat_level==1" type="success">二级</el-tag>
+            <el-tag v-if="scope.row.cat_level==2" type="warning">三级</el-tag>
+          </template>
+        </el-table-column>
         <!-- 操作 -->
-        <template slot="opt" slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
-        </template>
-      </tree-table>
+        <el-table-column label="操作" width="177px">
+          <template>
+            <el-button type="primary" icon="el-icon-edit" size="mini">编辑</el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
       <!-- 分页 -->
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="queryInfo.pagenum"
-        :page-sizes="[1,2,5,10]"
+        :page-sizes="[1, 2, 5, 10]"
         :page-size="queryInfo.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
@@ -74,10 +91,11 @@
           ></el-cascader>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
+      <!-- 按钮 -->
+      <template v-slot:footer class="dialog-footer">
         <el-button @click="addCateDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addCate">确 定</el-button>
-      </span>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -85,6 +103,7 @@
 <script>
 export default {
   created() {
+    // cate 组件创建后获取分类信息
     this.getCateList()
   },
   data() {
@@ -99,35 +118,6 @@ export default {
       cateList: [],
       // 数据总条数
       total: null,
-      // 树形表格每列配置
-      columns: [
-        {
-          title: '分类名称',
-          key: 'cat_name'
-        },
-        {
-          title: '是否有效',
-          // 表示，将当前列定义为模板列
-          type: 'template',
-          // 表示当前这一列使用模板名称
-          template: 'isok'
-        },
-        {
-          title: '排序',
-          // 表示，将当前列定义为模板列
-          type: 'template',
-          // 表示当前这一列使用模板名称
-          template: 'order'
-        },
-        {
-          title: '操作',
-          // 表示，将当前列定义为模板列
-          type: 'template',
-          // 表示当前这一列使用模板名称
-          template: 'opt',
-          width: '200px'
-        }
-      ],
       // 添加分类的对话框是否可见的标识
       addCateDialogVisible: false,
       // 添加分类的参数
@@ -166,6 +156,10 @@ export default {
       }
       this.cateList = result.data.result
       this.total = result.data.total
+    },
+    // 懒加载，子节点被展开后再渲染，提高页面性能
+    lazyLoad(row, treeNode, resolve) {
+      resolve(row.children)
     },
     // 分页大小
     handleSizeChange(pagesize) {
@@ -206,27 +200,30 @@ export default {
     },
     // 添加分类
     async addCate() {
-      // 获取层级选择器选择结果数组的长度
-      const length = this.selectedParentCateId.length
-      // 长度大于0，说明选择了，父级 id 为数组最后一项
-      if (length > 0) {
-        this.addCateForm.cat_pid = this.selectedParentCateId[length - 1]
-      } else {
-        // 没选择，则作为一级分类，父级 id 为0
-        this.addCateForm.cat_pid = 0
-      }
-      // 分类层级刚好等于长度
-      this.addCateForm.cat_level = length
-      const { data: result } = await this.$http.post(
-        'categories',
-        this.addCateForm
-      )
-      if (result.meta.status !== 201) {
-        return this.$message.error(result.meta.msg)
-      }
-      this.getCateList()
-      this.$message.success(result.meta.msg)
-      this.addCateDialogVisible = false
+      this.$refs.addCateFormRef.validate(async valid => {
+        if (!valid) return
+        // 获取层级选择器选择结果数组的长度
+        const length = this.selectedParentCateId.length
+        // 长度大于0，说明选择了，父级 id 为数组最后一项
+        if (length > 0) {
+          this.addCateForm.cat_pid = this.selectedParentCateId[length - 1]
+        } else {
+          // 没选择，则作为一级分类，父级 id 为0
+          this.addCateForm.cat_pid = 0
+        }
+        // 分类层级刚好等于长度
+        this.addCateForm.cat_level = length
+        const { data: result } = await this.$http.post(
+          'categories',
+          this.addCateForm
+        )
+        if (result.meta.status !== 201) {
+          return this.$message.error(result.meta.msg)
+        }
+        this.$message.success(result.meta.msg)
+        this.getCateList()
+        this.addCateDialogVisible = false
+      })
     }
   }
 }

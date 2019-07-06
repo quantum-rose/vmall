@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import './assets/css/global.css'
+import './assets/css/global.less'
 import Login from './components/login.vue'
 import Home from './components/home.vue'
 import Welcome from './components/welcome.vue'
@@ -8,6 +8,7 @@ import Users from './components/users/users.vue'
 import Rights from './components/power/rights.vue'
 import Roles from './components/power/roles.vue'
 import Cate from './components/goods/cate.vue'
+import Params from './components/goods/params.vue'
 
 Vue.use(Router)
 
@@ -37,6 +38,9 @@ const router = new Router({
     }, {
       path: '/categories',
       component: Cate
+    }, {
+      path: '/params',
+      component: Params
     }]
   }]
 })

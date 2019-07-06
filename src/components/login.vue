@@ -102,7 +102,7 @@ export default {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background-color: #fffe;
+  background-color: #fff;
 
   .avatar-box {
     height: 130px;

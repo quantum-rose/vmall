@@ -6,10 +6,11 @@
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
+
     <!-- 卡片视图 -->
     <el-card>
-      <!-- 搜索框和添加按钮 -->
       <el-row :gutter="15">
+        <!-- 搜索框 -->
         <el-col :span="8">
           <el-input
             placeholder="请输入内容"
@@ -17,15 +18,19 @@
             clearable
             @clear="getUserList"
           >
-            <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
+            <template v-slot:append>
+              <el-button icon="el-icon-search" @click="getUserList"></el-button>
+            </template>
           </el-input>
         </el-col>
+        <!-- 添加按钮 -->
         <el-col :span="4">
-          <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
+          <el-button type="primary" @click="addUserDialogVisible = true">添加用户</el-button>
         </el-col>
       </el-row>
+
       <!-- 表格 -->
-      <el-table :data="userList" border>
+      <el-table :data="userList" border stripe :max-height="maxTableHeight">
         <el-table-column type="index"></el-table-column>
         <el-table-column prop="username" label="用户名"></el-table-column>
         <el-table-column prop="email" label="邮箱"></el-table-column>
@@ -62,12 +67,13 @@
           </template>
         </el-table-column>
       </el-table>
+
       <!-- 分页 -->
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="queryInfo.pagenum"
-        :page-sizes="[1, 2, 5, 10]"
+        :page-sizes="[5, 10, 20]"
         :page-size="queryInfo.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
@@ -77,56 +83,56 @@
     <!-- 添加用户的对话框 -->
     <el-dialog
       title="添加用户"
-      :visible.sync="addDialogVisible"
+      :visible.sync="addUserDialogVisible"
       width="30%"
-      @close="resetForm('addFormRef')"
+      @close="resetForm('addUserFormRef')"
     >
       <!-- 表单 -->
-      <el-form :model="addForm" :rules="formRules" ref="addFormRef" label-width="70px">
+      <el-form :model="addUserForm" :rules="formRules" ref="addUserFormRef" label-width="70px">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model.trim="addForm.username"></el-input>
+          <el-input v-model.trim="addUserForm.username"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model.trim="addForm.password"></el-input>
+          <el-input v-model.trim="addUserForm.password"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model.trim="addForm.email"></el-input>
+          <el-input v-model.trim="addUserForm.email"></el-input>
         </el-form-item>
         <el-form-item label="手机号" prop="mobile">
-          <el-input v-model.trim="addForm.mobile"></el-input>
+          <el-input v-model.trim="addUserForm.mobile"></el-input>
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addNewUser">确 定</el-button>
-      </span>
+      <template v-slot:footer class="dialog-footer">
+        <el-button @click="addUserDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addUser">确 定</el-button>
+      </template>
     </el-dialog>
 
     <!-- 修改用户的对话框 -->
     <el-dialog
       title="修改用户"
-      :visible.sync="editDialogVisible"
+      :visible.sync="editUserDialogVisible"
       width="30%"
-      @close="resetForm('editFormRef')"
+      @close="resetForm('editUserFormRef')"
     >
       <!-- 表单 -->
-      <el-form :model="editForm" :rules="formRules" ref="editFormRef" label-width="70px">
+      <el-form :model="editUserForm" :rules="formRules" ref="editUserFormRef" label-width="70px">
         <el-form-item label="用户名">
-          <el-input v-model.trim="editForm.username" disabled></el-input>
+          <el-input v-model.trim="editUserForm.username" disabled></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model.trim="editForm.email"></el-input>
+          <el-input v-model.trim="editUserForm.email"></el-input>
         </el-form-item>
         <el-form-item label="手机号" prop="mobile">
-          <el-input v-model.trim="editForm.mobile"></el-input>
+          <el-input v-model.trim="editUserForm.mobile"></el-input>
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取 消</el-button>
+      <template v-slot:footer class="dialog-footer">
+        <el-button @click="editUserDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
-      </span>
+      </template>
     </el-dialog>
 
     <!-- 分配角色的对话框 -->
@@ -156,10 +162,11 @@
           </el-select>
         </el-col>
       </el-row>
-      <span slot="footer" class="dialog-footer">
+      <!-- 按钮 -->
+      <template v-slot:footer class="dialog-footer">
         <el-button @click="allotRoleDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="allotRole">确 定</el-button>
-      </span>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -168,6 +175,11 @@ export default {
   created() {
     // users组件创建后获取用户信息
     this.getUserList()
+  },
+  mounted() {
+    window.onresize = () => {
+      this.maxTableHeight = window.innerHeight - 284
+    }
   },
   data() {
     // 验证邮箱地址
@@ -187,27 +199,28 @@ export default {
       queryInfo: {
         query: '',
         pagenum: 1,
-        pagesize: 5
+        pagesize: 10
       },
       // 用户信息列表
       userList: [],
       // 数据总条数
       total: null,
+      maxTableHeight: window.innerHeight - 284,
       // 添加用户对话框是否可见的标识
-      addDialogVisible: false,
+      addUserDialogVisible: false,
       // 修改用户对话框是否可见的标识
-      editDialogVisible: false,
+      editUserDialogVisible: false,
       // 分配角色对话框是否可见的标识
       allotRoleDialogVisible: false,
       // 添加用户的表单数据对象
-      addForm: {
+      addUserForm: {
         username: '',
         password: '',
         email: '',
         mobile: ''
       },
       // 修改用户的表单数据对象
-      editForm: {},
+      editUserForm: {},
       // 要分配角色的当前用户信息
       userInfo: {},
       // 要分配的角色 id
@@ -267,17 +280,20 @@ export default {
     resetForm(ref) {
       this.$refs[ref].resetFields()
     },
-    // 创建新用户
-    addNewUser() {
-      this.$refs.addFormRef.validate(async valid => {
+    // 添加用户
+    addUser() {
+      this.$refs.addUserFormRef.validate(async valid => {
         if (!valid) return
-        const { data: result } = await this.$http.post('users', this.addForm)
+        const { data: result } = await this.$http.post(
+          'users',
+          this.addUserForm
+        )
         if (result.meta.status !== 201) {
-          return this.$message.error
+          return this.$message.error(result.meta.msg)
         }
         this.$message.success(result.meta.msg)
         this.getUserList()
-        this.addDialogVisible = false
+        this.addUserDialogVisible = false
       })
     },
     // 展示修改用户对话框，并填充数据
@@ -286,18 +302,18 @@ export default {
       if (result.meta.status !== 200) {
         return this.$message.error(result.meta.msg)
       }
-      this.editForm = result.data
-      this.editDialogVisible = true
+      this.editUserForm = result.data
+      this.editUserDialogVisible = true
     },
     // 提交修改的数据
     editUserInfo() {
-      this.$refs.editFormRef.validate(async valid => {
+      this.$refs.editUserFormRef.validate(async valid => {
         if (!valid) return
         const { data: result } = await this.$http.put(
-          'users/' + this.editForm.id,
+          'users/' + this.editUserForm.id,
           {
-            email: this.editForm.email,
-            mobile: this.editForm.mobile
+            email: this.editUserForm.email,
+            mobile: this.editUserForm.mobile
           }
         )
         if (result.meta.status !== 200) {
@@ -305,7 +321,7 @@ export default {
         }
         this.$message.success(result.meta.msg)
         this.getUserList()
-        this.editDialogVisible = false
+        this.editUserDialogVisible = false
       })
     },
     // 删除用户

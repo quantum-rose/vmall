@@ -6,7 +6,7 @@ import '../src/assets/fonts/iconfont.css'
 import axios from 'axios'
 import TreeTable from 'tree-table-vue'
 
-axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
+axios.defaults.baseURL = 'http://47.102.104.11/api/private/v1/'
 axios.interceptors.request.use(config => {
   // Do something before request is sent
   config.headers.Authorization = window.sessionStorage.getItem('token')
