@@ -20,7 +20,7 @@
         :data="cateList"
         row-key="cat_id"
         border
-        tripe
+        stripe
         lazy
         :load="lazyLoad"
         :tree-props="{children: '', hasChildren: 'children'}"

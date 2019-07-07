@@ -32,12 +32,13 @@
               </el-col>
               <el-col :span="20">
                 <el-row
+                  style="padding:5px 0 5px 0"
                   :class="[{'bdtop': i2 !== 0}, 'vcenter']"
                   :key="item2.id"
                   v-for="(item2, i2) in item1.children"
                 >
                   <!-- 二级分类 -->
-                  <el-col :span="6">
+                  <el-col :span="5">
                     <el-tag
                       type="success"
                       closable
@@ -46,7 +47,7 @@
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <!-- 三级分类 -->
-                  <el-col :span="18">
+                  <el-col :span="19">
                     <el-tag
                       type="warning"
                       :key="item3.id"
@@ -211,7 +212,6 @@ export default {
       if (result.meta.status !== 200) {
         return this.$message.error(result.meta.msg)
       }
-      const temp = result.data[0]
       result.data.forEach(item => this.rightsFilter(item))
       this.rolesList = result.data
     },
@@ -352,7 +352,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .el-tag {
-  margin: 10px;
+  margin: 5px 10px 5px 0;
 }
 .bdtop {
   border-top: 1px solid #eee;

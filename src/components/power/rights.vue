@@ -6,7 +6,6 @@
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
       <el-breadcrumb-item>权限列表</el-breadcrumb-item>
     </el-breadcrumb>
-    
     <!-- 卡片视图 -->
     <el-card>
       <el-table :data="rightsList" border stripe :max-height="maxTableHeight">
