@@ -12,42 +12,46 @@
     <el-container>
       <!-- 侧边栏 -->
       <el-aside :width="isCollapse?'64px':'200px'">
-        <!-- 折叠和展开菜单的按钮 -->
-        <div class="toggle-menu" @click="toggleMenu">
-          <i :class="isCollapse?'el-icon-s-unfold':'el-icon-s-fold'"></i>
-        </div>
-        <!-- 导航菜单 -->
-        <el-menu
-          ref="navMenu"
-          background-color="#333"
-          text-color="#fff"
-          active-text-color="#87ceeb"
-          unique-opened
-          :collapse="isCollapse"
-          :collapse-transition="false"
-          router
-          :default-active="currentMenu"
-        >
-          <el-submenu :index="item.path" v-for="item in menuList" :key="item.id">
-            <template v-slot:title>
-              <i :class="menuIcon[item.id]"></i>
-              <span>{{item.authName}}</span>
-            </template>
-            <el-menu-item
-              :index="subitem.path"
-              v-for="subitem in item.children"
-              :key="subitem.id"
-              @click="saveNavStatus(subitem.path)"
-            >
-              <i class="el-icon-menu"></i>
-              <span>{{subitem.authName}}</span>
-            </el-menu-item>
-          </el-submenu>
-        </el-menu>
+        <el-scrollbar style="height:100%;">
+          <!-- 折叠和展开菜单的按钮 -->
+          <div class="toggle-menu" @click="toggleMenu">
+            <i :class="isCollapse?'el-icon-s-unfold':'el-icon-s-fold'"></i>
+          </div>
+          <!-- 导航菜单 -->
+          <el-menu
+            ref="navMenu"
+            background-color="#333"
+            text-color="#fff"
+            active-text-color="#87ceeb"
+            unique-opened
+            :collapse="isCollapse"
+            :collapse-transition="false"
+            router
+            :default-active="currentMenu"
+          >
+            <el-submenu :index="item.path" v-for="item in menuList" :key="item.id">
+              <template v-slot:title>
+                <i :class="menuIcon[item.id]"></i>
+                <span>{{item.authName}}</span>
+              </template>
+              <el-menu-item
+                :index="'/'+subitem.path"
+                v-for="subitem in item.children"
+                :key="subitem.id"
+                @click="saveNavStatus('/'+subitem.path)"
+              >
+                <i class="el-icon-menu"></i>
+                <span>{{subitem.authName}}</span>
+              </el-menu-item>
+            </el-submenu>
+          </el-menu>
+        </el-scrollbar>
       </el-aside>
       <!-- 主体区域 -->
       <el-main>
-        <router-view @reset-current-menu="resetCurrentMenu"></router-view>
+        <el-scrollbar style="height:100%;">
+          <router-view @reset-current-menu="resetCurrentMenu"></router-view>
+        </el-scrollbar>
       </el-main>
     </el-container>
   </el-container>

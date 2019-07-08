@@ -19,7 +19,7 @@
             @clear="getUserList"
           >
             <template v-slot:append>
-              <el-button icon="el-icon-search" @click="getUserList"></el-button>
+              <el-button icon="el-icon-search" @click="queryInfo.pagenum=1;getUserList()"></el-button>
             </template>
           </el-input>
         </el-col>
@@ -48,7 +48,7 @@
               type="primary"
               icon="el-icon-edit"
               size="mini"
-              @click="showEditDialog(scope.row.id)"
+              @click="showEditUserDialog(scope.row.id)"
             ></el-button>
             <el-button
               type="danger"
@@ -178,7 +178,7 @@ export default {
   },
   mounted() {
     window.onresize = () => {
-      this.maxTableHeight = window.innerHeight - 284
+      this.maxTableHeight = window.innerHeight - 274
     }
   },
   data() {
@@ -205,7 +205,7 @@ export default {
       userList: [],
       // 数据总条数
       total: null,
-      maxTableHeight: window.innerHeight - 284,
+      maxTableHeight: window.innerHeight - 274,
       // 添加用户对话框是否可见的标识
       addUserDialogVisible: false,
       // 修改用户对话框是否可见的标识
@@ -253,6 +253,7 @@ export default {
       }
       this.userList = result.data.users
       this.total = result.data.total
+      console.log(result.data)
     },
     // 修改用户状态信息
     async changeUserState(userInfo) {
@@ -297,7 +298,7 @@ export default {
       })
     },
     // 展示修改用户对话框，并填充数据
-    async showEditDialog(id) {
+    async showEditUserDialog(id) {
       const { data: result } = await this.$http.get('users/' + id)
       if (result.meta.status !== 200) {
         return this.$message.error(result.meta.msg)
@@ -337,6 +338,11 @@ export default {
             return this.$message.error(result.meta.msg)
           }
           this.$message.success(result.meta.msg)
+          let pagenum = this.queryInfo.pagenum
+          let pagesize = this.queryInfo.pagesize
+          if (pagenum * pagesize - this.total + 1 >= pagesize) {
+            this.queryInfo.pagenum--
+          }
           this.getUserList()
         })
         .catch(() => this.$message.info('已取消删除'))
@@ -370,7 +376,4 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.el-col {
-  margin-bottom: 10px;
-}
 </style>

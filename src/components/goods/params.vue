@@ -10,7 +10,7 @@
     <!-- 卡片视图 -->
     <el-card>
       <el-row>
-        <el-col>
+        <el-col :span="12">
           选择分类：
           <!-- 层级选择器 -->
           <el-cascader
@@ -24,7 +24,7 @@
       </el-row>
 
       <!-- 标签页 -->
-      <el-tabs v-model="activeName" @tab-click="toggleTab">
+      <el-tabs v-model="activeName" @tab-click="tabClicked">
         <!-- 动态属性 -->
         <el-tab-pane label="动态属性" name="many" :disabled="!isSelected">
           <el-button type="primary" :disabled="!isSelected" @click="addAttrDialogVisible=true">添加属性</el-button>
@@ -233,7 +233,7 @@ export default {
       this.getCateAttrs()
     },
     // 切换选项卡时触发
-    toggleTab() {
+    tabClicked() {
       this.addAttrForm.attr_sel = this.activeName
       this.getCateAttrs()
     },
