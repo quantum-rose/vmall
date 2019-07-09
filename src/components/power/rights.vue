@@ -13,7 +13,7 @@
         <el-table-column prop="authName" label="权限名称"></el-table-column>
         <el-table-column prop="path" label="路径"></el-table-column>
         <el-table-column prop="level" label="权限等级">
-          <template v-slot="scope">
+          <template #default="scope">
             <el-tag v-if="scope.row.level==0">一级</el-tag>
             <el-tag v-if="scope.row.level==1" type="success">二级</el-tag>
             <el-tag v-if="scope.row.level==2" type="warning">三级</el-tag>
@@ -30,14 +30,20 @@ export default {
   },
   mounted() {
     window.onresize = () => {
-      this.maxTableHeight = window.innerHeight - 202
+      this.innerHeight = window.innerHeight
     }
   },
   data() {
     return {
+      innerHeight: window.innerHeight,
       // 权限数据列表
-      rightsList: [],
-      maxTableHeight: window.innerHeight - 202
+      rightsList: []
+    }
+  },
+  computed: {
+    // 表格最大高度
+    maxTableHeight() {
+      return this.innerHeight - 201
     }
   },
   methods: {

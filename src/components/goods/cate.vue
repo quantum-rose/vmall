@@ -23,11 +23,12 @@
         stripe
         lazy
         :load="lazyLoad"
-        :tree-props="{children: '', hasChildren: 'children'}"
+        :tree-props="tableConfig"
+        :max-height="maxTableHeight"
       >
         <el-table-column prop="cat_name" label="分类名称"></el-table-column>
         <el-table-column label="是否有效">
-          <template v-slot="scope">
+          <template #default="scope">
             <i
               v-if="scope.row.cat_deleted==0"
               style="color:#67C23A;font-size:18px"
@@ -42,7 +43,7 @@
         </el-table-column>
         <!-- 排序 -->
         <el-table-column label="排序">
-          <template v-slot="scope">
+          <template #default="scope">
             <el-tag v-if="scope.row.cat_level==0">一级</el-tag>
             <el-tag v-if="scope.row.cat_level==1" type="success">二级</el-tag>
             <el-tag v-if="scope.row.cat_level==2" type="warning">三级</el-tag>
@@ -62,7 +63,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="queryInfo.pagenum"
-        :page-sizes="[1, 2, 5, 10]"
+        :page-sizes="[5, 10, 20]"
         :page-size="queryInfo.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
@@ -73,11 +74,10 @@
     <el-dialog
       title="添加分类"
       :visible.sync="addCateDialogVisible"
-      width="30%"
       @close="resetForm('addCateFormRef')"
     >
       <!-- 表单 -->
-      <el-form :model="addCateForm" :rules="formRules" ref="addCateFormRef" label-width="80px">
+      <el-form :model="addCateForm" :rules="formRules" ref="addCateFormRef" label-width="auto">
         <el-form-item label="分类名称" prop="cat_name">
           <el-input v-model.trim="addCateForm.cat_name"></el-input>
         </el-form-item>
@@ -92,7 +92,7 @@
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="addCateDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addCate">确 定</el-button>
       </template>
@@ -106,13 +106,19 @@ export default {
     // cate 组件创建后获取分类信息
     this.getCateList()
   },
+  mounted() {
+    window.onresize = () => {
+      this.innerHeight = window.innerHeight
+    }
+  },
   data() {
     return {
+      innerHeight: window.innerHeight,
       // 分类树查询参数
       queryInfo: {
         type: 3,
         pagenum: 1,
-        pagesize: 5
+        pagesize: 10
       },
       // 分类数据
       cateList: [],
@@ -132,6 +138,11 @@ export default {
           { required: true, message: '请输入分类名称', trigger: 'blur' }
         ]
       },
+      // 树形表格配置
+      tableConfig: {
+        children: '',
+        hasChildren: 'children'
+      },
       // 层级选择器配置
       cascaderConfig: {
         expandTrigger: 'hover',
@@ -143,6 +154,12 @@ export default {
       parentCateList: [],
       // 已选择的父级分类 id
       selectedParentCateId: []
+    }
+  },
+  computed: {
+    // 表格最大高度
+    maxTableHeight() {
+      return this.innerHeight - 273
     }
   },
   methods: {

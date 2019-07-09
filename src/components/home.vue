@@ -30,7 +30,7 @@
             :default-active="currentMenu"
           >
             <el-submenu :index="item.path" v-for="item in menuList" :key="item.id">
-              <template v-slot:title>
+              <template #title>
                 <i :class="menuIcon[item.id]"></i>
                 <span>{{item.authName}}</span>
               </template>

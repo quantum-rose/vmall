@@ -30,7 +30,7 @@
         >
           <!-- 基本信息 -->
           <el-tab-pane label="基本信息" name="0">
-            <el-scrollbar :style="scrollbarStyle">
+            <el-scrollbar :style="'height:' + tabPaneHeight">
               <el-form-item label="商品分类" prop="goods_cat">
                 <!-- 层级选择器 -->
                 <el-cascader
@@ -58,51 +58,60 @@
 
           <!-- 商品参数 -->
           <el-tab-pane label="商品参数" name="1">
-            <el-form-item :label="item.attr_name" v-for="item in manyAttrs" :key="item.attr_id">
-              <el-checkbox-group v-model="item.attr_vals">
-                <el-checkbox
-                  :label="a"
-                  v-for="(a, i) in item.attr_vals"
-                  :key="i"
-                  border
-                  size="mini"
-                ></el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
+            <el-scrollbar :style="'height:' + tabPaneHeight">
+              <el-form-item :label="item.attr_name" v-for="item in manyAttrs" :key="item.attr_id">
+                <el-checkbox-group v-model="item.attr_vals">
+                  <el-checkbox
+                    :label="a"
+                    v-for="(a, i) in item.attr_vals"
+                    :key="i"
+                    border
+                    size="mini"
+                  ></el-checkbox>
+                </el-checkbox-group>
+              </el-form-item>
+            </el-scrollbar>
           </el-tab-pane>
 
           <!-- 商品属性 -->
           <el-tab-pane label="商品属性" name="2">
-            <el-form-item v-for="item in onlyAttrs" :key="item.attr_id" :label="item.attr_name">
-              <el-input v-model.trim="item.attr_vals"></el-input>
-            </el-form-item>
+            <el-scrollbar :style="'height:' + tabPaneHeight">
+              <el-form-item v-for="item in onlyAttrs" :key="item.attr_id" :label="item.attr_name">
+                <el-input v-model.trim="item.attr_vals"></el-input>
+              </el-form-item>
+            </el-scrollbar>
           </el-tab-pane>
 
           <!-- 上传图片 -->
           <el-tab-pane label="商品图片" name="3">
-            <el-upload
-              :action="uploadURL"
-              :headers="uploadHeaders"
-              :on-preview="handlePreview"
-              :on-remove="handleRemove"
-              :on-success="uploadSuccess"
-              list-type="picture"
-            >
-              <el-button size="small" type="primary">点击上传</el-button>
-              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-            </el-upload>
+            <el-scrollbar :style="'height:' + tabPaneHeight">
+              <el-upload
+                :action="uploadURL"
+                :headers="uploadHeaders"
+                :on-preview="handlePreview"
+                :on-remove="handleRemove"
+                :on-success="uploadSuccess"
+                list-type="picture"
+              >
+                <el-button size="small" type="primary">点击上传</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+              </el-upload>
+            </el-scrollbar>
           </el-tab-pane>
+
           <!-- 商品内容 -->
           <el-tab-pane label="商品内容" name="4">
-            <quill-editor v-model="addGoodsForm.goods_introduce" ref="myQuillEditor"></quill-editor>
-            <el-button type="primary" class="add-btn" @click="addGoods">添加商品</el-button>
+            <el-scrollbar :style="'height:' + tabPaneHeight">
+              <quill-editor v-model="addGoodsForm.goods_introduce" ref="quillEditor"></quill-editor>
+              <el-button type="primary" class="add-btn" @click="addGoods">添加商品</el-button>
+            </el-scrollbar>
           </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
 
     <!-- 图片预览 -->
-    <el-dialog title="图片预览" :visible.sync="previewVisible" width="50%">
+    <el-dialog title="图片预览" :visible.sync="previewVisible">
       <img :src="previewPath" alt class="previewImg" />
     </el-dialog>
   </div>
@@ -114,16 +123,16 @@ export default {
     this.getCateList()
   },
   mounted() {
+    this.setQuillEditorHeight()
     window.onresize = () => {
-      this.scrollbarStyle.height = window.innerHeight - 244 + 'px'
+      this.innerHeight = window.innerHeight
+      this.setQuillEditorHeight()
     }
   },
   data() {
     return {
-      // 滚动条区域的高度
-      scrollbarStyle: {
-        height: window.innerHeight - 244 + 'px'
-      },
+      innerHeight: window.innerHeight,
+      // 分类信息数据
       cateList: [],
       // 步骤条和选项卡共用的索引
       activeIndex: '0',
@@ -168,15 +177,23 @@ export default {
       manyAttrs: [],
       // 静态参数
       onlyAttrs: [],
+      // 图片上传地址
       uploadURL: this.$http.defaults.baseURL + 'upload',
+      // 为上传图片的请求添加 token
       uploadHeaders: {
         Authorization: window.sessionStorage.getItem('token')
       },
+      // 预览图片的对话框是否可见的标识
       previewVisible: false,
+      // 预览图片的路径
       previewPath: ''
     }
   },
   computed: {
+    // 标签页最大高度
+    tabPaneHeight() {
+      return this.innerHeight - 243 + 'px'
+    },
     // 是否选中了三级分类的标识
     isSelected() {
       return this.selectedCate.length === 3
@@ -272,15 +289,15 @@ export default {
         return this.$message.error(response.meta.msg)
       }
       this.$message.success(response.meta.msg)
-      this.addGoodsForm.pics.push({
-        pic: response.data.tmp_path
-      })
+      this.addGoodsForm.pics.push({ pic: response.data.tmp_path })
     },
+    // 添加商品
     addGoods() {
       this.$refs.addGoodsFormRef.validate(async valid => {
         if (!valid) {
           return this.$message.warning('请填写必要的表单项')
         }
+        // 将动态参数和静态属性转为符合要求的格式，并添加进请求表单中
         this.manyAttrs.forEach(item => {
           const attrInfo = {
             attr_id: item.attr_id,
@@ -304,9 +321,11 @@ export default {
         }
         this.$message.success(result.meta.msg)
       })
-      console.log(this.manyAttrs)
-      console.log(this.onlyAttrs)
-      console.log(this.addGoodsForm)
+    },
+    // 设置富文本编辑器高度
+    setQuillEditorHeight() {
+      this.$refs.quillEditor.$el.children[1].children[0].style.height =
+        this.innerHeight - 365 + 'px'
     }
   }
 }
@@ -327,5 +346,9 @@ export default {
 
 .add-btn {
   margin-top: 15px;
+}
+
+.quill-editor {
+  min-width: 623px;
 }
 </style>

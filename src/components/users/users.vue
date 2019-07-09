@@ -18,7 +18,7 @@
             clearable
             @clear="getUserList"
           >
-            <template v-slot:append>
+            <template #append>
               <el-button icon="el-icon-search" @click="queryInfo.pagenum=1;getUserList()"></el-button>
             </template>
           </el-input>
@@ -37,33 +37,34 @@
         <el-table-column prop="mobile" label="电话"></el-table-column>
         <el-table-column prop="role_name" label="角色"></el-table-column>
         <el-table-column label="状态" width="60px">
-          <template v-slot="scope">
+          <template #default="scope">
             <!-- switch状态改变后触发change事件 -->
             <el-switch v-model="scope.row.mg_state" @change="changeUserState(scope.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="173px">
-          <template v-slot="scope">
+          <template #default="scope">
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
+              title="修改"
               @click="showEditUserDialog(scope.row.id)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
+              title="删除"
               @click="removeUser(scope.row.id)"
             ></el-button>
-            <el-tooltip effect="dark" content="分配角色" placement="top-start" :enterable="false">
-              <el-button
-                type="warning"
-                icon="el-icon-setting"
-                size="mini"
-                @click="showAllotRoleDialog(scope.row)"
-              ></el-button>
-            </el-tooltip>
+            <el-button
+              type="warning"
+              icon="el-icon-setting"
+              size="mini"
+              title="分配角色"
+              @click="showAllotRoleDialog(scope.row)"
+            ></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -84,16 +85,15 @@
     <el-dialog
       title="添加用户"
       :visible.sync="addUserDialogVisible"
-      width="30%"
       @close="resetForm('addUserFormRef')"
     >
       <!-- 表单 -->
-      <el-form :model="addUserForm" :rules="formRules" ref="addUserFormRef" label-width="70px">
+      <el-form :model="addUserForm" :rules="formRules" ref="addUserFormRef" label-width="auto">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model.trim="addUserForm.username"></el-input>
+          <el-input v-model.trim="addUserForm.username" maxlength="10" show-word-limit></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model.trim="addUserForm.password"></el-input>
+          <el-input v-model.trim="addUserForm.password" maxlength="20" show-word-limit></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model.trim="addUserForm.email"></el-input>
@@ -103,7 +103,7 @@
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="addUserDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addUser">确 定</el-button>
       </template>
@@ -113,11 +113,10 @@
     <el-dialog
       title="修改用户"
       :visible.sync="editUserDialogVisible"
-      width="30%"
       @close="resetForm('editUserFormRef')"
     >
       <!-- 表单 -->
-      <el-form :model="editUserForm" :rules="formRules" ref="editUserFormRef" label-width="70px">
+      <el-form :model="editUserForm" :rules="formRules" ref="editUserFormRef" label-width="auto">
         <el-form-item label="用户名">
           <el-input v-model.trim="editUserForm.username" disabled></el-input>
         </el-form-item>
@@ -129,14 +128,14 @@
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="editUserDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
       </template>
     </el-dialog>
 
     <!-- 分配角色的对话框 -->
-    <el-dialog title="分配角色" :visible.sync="allotRoleDialogVisible" width="30%">
+    <el-dialog title="分配角色" :visible.sync="allotRoleDialogVisible">
       <el-row class="vcenter">
         <el-col :span="5" class="text-right">用户名：</el-col>
         <el-col :span="19">
@@ -163,7 +162,7 @@
         </el-col>
       </el-row>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="allotRoleDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="allotRole">确 定</el-button>
       </template>
@@ -178,7 +177,7 @@ export default {
   },
   mounted() {
     window.onresize = () => {
-      this.maxTableHeight = window.innerHeight - 274
+      this.innerHeight = window.innerHeight
     }
   },
   data() {
@@ -195,6 +194,7 @@ export default {
       callback(new Error('请输入正确的手机号码'))
     }
     return {
+      innerHeight: window.innerHeight,
       // 接口查询参数
       queryInfo: {
         query: '',
@@ -205,7 +205,6 @@ export default {
       userList: [],
       // 数据总条数
       total: null,
-      maxTableHeight: window.innerHeight - 274,
       // 添加用户对话框是否可见的标识
       addUserDialogVisible: false,
       // 修改用户对话框是否可见的标识
@@ -242,6 +241,12 @@ export default {
       }
     }
   },
+  computed: {
+    // 表格最大高度
+    maxTableHeight() {
+      return this.innerHeight - 273
+    }
+  },
   methods: {
     // 获取用户信息
     async getUserList() {
@@ -253,7 +258,6 @@ export default {
       }
       this.userList = result.data.users
       this.total = result.data.total
-      console.log(result.data)
     },
     // 修改用户状态信息
     async changeUserState(userInfo) {

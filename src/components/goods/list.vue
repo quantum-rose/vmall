@@ -17,7 +17,7 @@
             clearable
             @clear="getGoodsList"
           >
-            <template v-slot:append>
+            <template #append>
               <el-button icon="el-icon-search" @click="queryInfo.pagenum=1;getGoodsList()"></el-button>
             </template>
           </el-input>
@@ -33,22 +33,26 @@
         <el-table-column type="index"></el-table-column>
         <el-table-column prop="goods_name" label="商品名称"></el-table-column>
         <el-table-column prop="goods_price" label="商品价格(元)" width="102px"></el-table-column>
-        <el-table-column prop="goods_weight" label="商品重量" width="80px"></el-table-column>
+        <el-table-column prop="goods_weight" label="商品重量" width="79px"></el-table-column>
         <el-table-column label="创建时间" width="159px">
-          <template v-slot="scope">{{scope.row.add_time * 1000 | dateFormat('yyyy-MM-dd hh:mm:ss')}}</template>
+          <template
+            #default="scope"
+          >{{scope.row.add_time * 1000 | dateFormat('yyyy-MM-dd hh:mm:ss')}}</template>
         </el-table-column>
         <el-table-column label="操作" width="119px">
-          <template v-slot="scope">
+          <template #default="scope">
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
+              title="修改"
               @click="showEditGoodDialog(scope.row.goods_id)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
+              title="删除"
               @click="removeGood(scope.row.goods_id)"
             ></el-button>
           </template>
@@ -76,22 +80,28 @@ export default {
   },
   mounted() {
     window.onresize = () => {
-      this.maxTableHeight = window.innerHeight - 274
+      this.innerHeight = window.innerHeight
     }
   },
   data() {
     return {
+      innerHeight: window.innerHeight,
       // 查询参数
       queryInfo: {
         query: '',
         pagenum: 1,
-        pagesize: 5
+        pagesize: 10
       },
       // 商品列表数据
       goodsList: [],
       // 数据总条数
-      total: null,
-      maxTableHeight: window.innerHeight - 274
+      total: null
+    }
+  },
+  computed: {
+    // 表格最大高度
+    maxTableHeight() {
+      return this.innerHeight - 273
     }
   },
   methods: {
@@ -105,7 +115,6 @@ export default {
       }
       this.goodsList = result.data.goods
       this.total = result.data.total
-      console.log(this.goodsList)
     },
     handleSizeChange(pagesize) {
       this.queryInfo.pagesize = pagesize

@@ -11,12 +11,12 @@
     <el-card>
       <el-row>
         <el-col :span="12">
-          选择分类：
           <!-- 层级选择器 -->
           <el-cascader
             v-model="selectedCate"
             :options="cateList"
             :props="cascaderConfig"
+            placeholder="请选择一个三级分类"
             clearable
             @change="selectedChange"
           ></el-cascader>
@@ -27,11 +27,15 @@
       <el-tabs v-model="activeName" @tab-click="tabClicked">
         <!-- 动态属性 -->
         <el-tab-pane label="动态属性" name="many" :disabled="!isSelected">
-          <el-button type="primary" :disabled="!isSelected" @click="addAttrDialogVisible=true">添加属性</el-button>
-          <el-table :data="manyAttrs" border stripe>
+          <el-button
+            type="primary"
+            :disabled="!isSelected"
+            @click="addAttrDialogVisible = true"
+          >添加属性</el-button>
+          <el-table :data="manyAttrs" border stripe :max-height="maxTableHeight">
             <!-- 展开行 -->
             <el-table-column type="expand">
-              <template v-slot="scope">
+              <template #default="scope">
                 <el-tag
                   :key="tag"
                   v-for="tag in scope.row.attr_vals"
@@ -59,7 +63,7 @@
             <el-table-column type="index"></el-table-column>
             <el-table-column label="分类参数" prop="attr_name"></el-table-column>
             <el-table-column label="操作" width="177px">
-              <template v-slot="scope">
+              <template #default="scope">
                 <el-button
                   type="primary"
                   icon="el-icon-edit"
@@ -78,12 +82,16 @@
         </el-tab-pane>
         <!-- 静态参数 -->
         <el-tab-pane label="静态参数" name="only" :disabled="!isSelected">
-          <el-button type="primary" :disabled="!isSelected" @click="addAttrDialogVisible=true">添加参数</el-button>
-          <el-table :data="onlyAttrs" border stripe>
+          <el-button
+            type="primary"
+            :disabled="!isSelected"
+            @click="addAttrDialogVisible = true"
+          >添加参数</el-button>
+          <el-table :data="onlyAttrs" border stripe :max-height="maxTableHeight">
             <el-table-column type="index"></el-table-column>
             <el-table-column label="分类参数" prop="attr_name"></el-table-column>
             <el-table-column label="操作" width="177px">
-              <template v-slot="scope">
+              <template #default="scope">
                 <el-button
                   type="primary"
                   icon="el-icon-edit"
@@ -102,32 +110,31 @@
     <el-dialog
       :title="'添加'+titleText"
       :visible.sync="addAttrDialogVisible"
-      width="30%"
       @close="resetForm('addAttrFormRef')"
     >
       <!-- 表单 -->
-      <el-form :model="addAttrForm" :rules="formRules" ref="addAttrFormRef" label-width="80px">
+      <el-form :model="addAttrForm" :rules="formRules" ref="addAttrFormRef" label-width="auto">
         <el-form-item :label="titleText" prop="attr_name">
           <el-input v-model.trim="addAttrForm.attr_name"></el-input>
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="addAttrDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addAttr">确 定</el-button>
       </template>
     </el-dialog>
 
     <!-- 编辑参数的对话框 -->
-    <el-dialog :title="'编辑'+titleText" :visible.sync="editAttrDialogVisible" width="30%">
+    <el-dialog :title="'编辑'+titleText" :visible.sync="editAttrDialogVisible">
       <!-- 表单 -->
-      <el-form :model="editAttrForm" :rules="formRules" ref="editAttrFormRef" label-width="80px">
+      <el-form :model="editAttrForm" :rules="formRules" ref="editAttrFormRef" label-width="auto">
         <el-form-item :label="titleText" prop="attr_name">
           <el-input v-model.trim="editAttrForm.attr_name"></el-input>
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="editAttrDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editAttr">确 定</el-button>
       </template>
@@ -140,8 +147,14 @@ export default {
   created() {
     this.getCateList()
   },
+  mounted() {
+    window.onresize = () => {
+      this.innerHeight = window.innerHeight
+    }
+  },
   data() {
     return {
+      innerHeight: window.innerHeight,
       // 当前选中的分类
       selectedCate: [],
       // 分类信息数组
@@ -183,6 +196,10 @@ export default {
     }
   },
   computed: {
+    // 表格最大高度
+    maxTableHeight() {
+      return this.innerHeight - 365
+    },
     // 是否选中了三级分类的标识
     isSelected() {
       return this.selectedCate.length === 3
@@ -313,7 +330,6 @@ export default {
         return this.$message.error(result.meta.msg)
       }
       this.$message.success(result.meta.msg)
-      console.log(tag, row)
     },
     // 切换为输入框
     showInput(row) {

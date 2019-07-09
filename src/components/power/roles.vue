@@ -19,14 +19,14 @@
       <el-table :data="rolesList" border stripe :max-height="maxTableHeight">
         <!-- 展开行 -->
         <el-table-column type="expand">
-          <template v-slot="scope">
+          <template #default="scope">
             <el-row
               :class="['bdbottom', {'bdtop': i1 === 0}, 'vcenter']"
               :key="item1.id"
               v-for="(item1, i1) in scope.row.children"
             >
               <!-- 一级分类 -->
-              <el-col :span="4">
+              <el-col :span="4" style="min-width:120px">
                 <el-tag closable @close="removeRight(scope.row, item1.id)">{{item1.authName}}</el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
@@ -38,7 +38,7 @@
                   v-for="(item2, i2) in item1.children"
                 >
                   <!-- 二级分类 -->
-                  <el-col :span="5">
+                  <el-col :span="5" style="min-width:120px">
                     <el-tag
                       type="success"
                       closable
@@ -65,7 +65,7 @@
         <el-table-column prop="roleName" label="角色名称"></el-table-column>
         <el-table-column prop="roleDesc" label="角色描述"></el-table-column>
         <el-table-column label="操作" width="284px">
-          <template v-slot="scope">
+          <template #default="scope">
             <el-button
               type="primary"
               icon="el-icon-edit"
@@ -93,11 +93,10 @@
     <el-dialog
       title="添加角色"
       :visible.sync="addRoleDialogVisible"
-      width="30%"
       @close="resetForm('addRoleFormRef')"
     >
       <!-- 表单 -->
-      <el-form :model="addRoleForm" :rules="formRules" ref="addRoleFormRef" label-width="80px">
+      <el-form :model="addRoleForm" :rules="formRules" ref="addRoleFormRef" label-width="auto">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model.trim="addRoleForm.roleName"></el-input>
         </el-form-item>
@@ -106,16 +105,16 @@
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="addRoleDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addRole">确 定</el-button>
       </template>
     </el-dialog>
 
     <!-- 修改角色的对话框 -->
-    <el-dialog title="修改角色" :visible.sync="editRoleDialogVisible" width="30%">
+    <el-dialog title="修改角色" :visible.sync="editRoleDialogVisible">
       <!-- 表单 -->
-      <el-form :model="editRoleForm" :rules="formRules" ref="editRoleFormRef" label-width="80px">
+      <el-form :model="editRoleForm" :rules="formRules" ref="editRoleFormRef" label-width="auto">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model.trim="editRoleForm.roleName"></el-input>
         </el-form-item>
@@ -124,7 +123,7 @@
         </el-form-item>
       </el-form>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="editRoleDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="editRole">确 定</el-button>
       </template>
@@ -134,7 +133,6 @@
     <el-dialog
       title="分配权限"
       :visible.sync="allotRightsDialogVisible"
-      width="30%"
       @close="defaultCheckedKeys = []"
     >
       <!-- 权限树 -->
@@ -147,7 +145,7 @@
         ref="rightsTreeRef"
       ></el-tree>
       <!-- 按钮 -->
-      <template v-slot:footer class="dialog-footer">
+      <template #footer class="dialog-footer">
         <el-button @click="allotRightsDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="allotRights">确 定</el-button>
       </template>
@@ -161,14 +159,14 @@ export default {
   },
   mounted() {
     window.onresize = () => {
-      this.maxTableHeight = window.innerHeight - 242
+      this.innerHeight = window.innerHeight
     }
   },
   data() {
     return {
+      innerHeight: window.innerHeight,
       // 角色列表数据对象
       rolesList: [],
-      maxTableHeight: window.innerHeight - 242,
       // 权限树数据对象
       rightsList: [],
       // 分配权限的对话框是否可见的标识
@@ -203,6 +201,12 @@ export default {
           { max: 10, message: '角色名称长度不能超过10个字符' }
         ]
       }
+    }
+  },
+  computed: {
+    // 表格最大高度
+    maxTableHeight() {
+      return this.innerHeight - 241
     }
   },
   methods: {
@@ -354,9 +358,11 @@ export default {
 .el-tag {
   margin: 5px 10px 5px 0;
 }
+
 .bdtop {
   border-top: 1px solid #eee;
 }
+
 .bdbottom {
   border-bottom: 1px solid #eee;
 }
