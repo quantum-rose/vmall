@@ -56,7 +56,7 @@
               icon="el-icon-delete"
               size="mini"
               title="删除"
-              @click="removeUser(scope.row.id)"
+              @click="removeUser(scope.row)"
             ></el-button>
             <el-button
               type="warning"
@@ -330,14 +330,18 @@ export default {
       })
     },
     // 删除用户
-    removeUser(id) {
-      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
+    removeUser(row) {
+      this.$confirm(
+        `此操作将永久删除该用户 “${row.username}”, 是否继续?`,
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
         .then(async () => {
-          const { data: result } = await this.$http.delete('users/' + id)
+          const { data: result } = await this.$http.delete('users/' + row.id)
           if (result.meta.status !== 200) {
             return this.$message.error(result.meta.msg)
           }
