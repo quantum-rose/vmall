@@ -50,7 +50,11 @@ const router = new Router({
       component: GoodsList
     }, {
       path: '/goods/add',
-      component: AddGood
+      name: 'addGoods',
+      component: AddGood,
+      props: route => ({
+        goodsId: route.query.goodsId
+      })
     }, {
       path: '/orders',
       component: Order

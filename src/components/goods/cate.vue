@@ -16,16 +16,7 @@
       </el-row>
 
       <!-- 树形表格 -->
-      <el-table
-        :data="cateList"
-        row-key="cat_id"
-        border
-        stripe
-        lazy
-        :load="lazyLoad"
-        :tree-props="tableConfig"
-        :max-height="maxTableHeight"
-      >
+      <el-table :data="cateList" row-key="cat_id" border stripe :max-height="maxTableHeight">
         <el-table-column prop="cat_name" label="分类名称"></el-table-column>
         <el-table-column label="是否有效">
           <template #default="scope">
@@ -173,11 +164,6 @@ export default {
           { required: true, message: '请输入分类名称', trigger: 'blur' }
         ]
       },
-      // 树形表格配置
-      tableConfig: {
-        children: '',
-        hasChildren: 'children'
-      },
       // 层级选择器配置
       cascaderConfig: {
         expandTrigger: 'hover',
@@ -208,11 +194,6 @@ export default {
       }
       this.cateList = result.data.result
       this.total = result.data.total
-      console.log(this.cateList)
-    },
-    // 懒加载，子节点被展开后再渲染，提高页面性能
-    lazyLoad(row, treeNode, resolve) {
-      resolve(row.children)
     },
     // 分页大小
     handleSizeChange(pagesize) {
@@ -314,7 +295,10 @@ export default {
           this.$message.success(result.meta.msg)
           let pagenum = this.queryInfo.pagenum
           let pagesize = this.queryInfo.pagesize
-          if (pagenum * pagesize - this.total + 1 >= pagesize) {
+          if (
+            pagenum * pagesize - this.total + 1 >= pagesize &&
+            row.cat_level === 0
+          ) {
             this.queryInfo.pagenum--
           }
           this.getCateList()

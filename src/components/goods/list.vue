@@ -24,7 +24,7 @@
         </el-col>
         <!-- 添加按钮 -->
         <el-col :span="4">
-          <el-button type="primary" @click="goAddGoodPage">添加商品</el-button>
+          <el-button type="primary" @click="goAddGoodsPage">添加商品</el-button>
         </el-col>
       </el-row>
 
@@ -46,14 +46,14 @@
               icon="el-icon-edit"
               size="mini"
               title="修改"
-              @click="showEditGoodDialog(scope.row.goods_id)"
+              @click="goEditGoodsPage(scope.row.goods_id)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               title="删除"
-              @click="removeGood(scope.row.goods_id)"
+              @click="removeGoods(scope.row)"
             ></el-button>
           </template>
         </el-table-column>
@@ -116,10 +116,12 @@ export default {
       this.goodsList = result.data.goods
       this.total = result.data.total
     },
+    // 监听pagesize的事件
     handleSizeChange(pagesize) {
       this.queryInfo.pagesize = pagesize
       this.getGoodsList()
     },
+    // 监听pagenum的事件
     handleCurrentChange(pagenum) {
       this.queryInfo.pagenum = pagenum
       this.getGoodsList()
@@ -129,20 +131,24 @@ export default {
       this.$refs[ref].resetFields()
     },
     // 添加商品
-    goAddGoodPage() {
+    goAddGoodsPage() {
       this.$router.push('/goods/add')
     },
-    // 展示编辑商品的对话框
-    showEditGoodDialog(id) {},
+    // 编辑商品
+    goEditGoodsPage(goodsId) {
+      this.$router.push({ name: 'addGoods', query: { goodsId } })
+    },
     // 移除商品
-    removeGood(id) {
-      this.$confirm('此操作将永久删除该商品, 是否继续?', '提示', {
+    removeGoods(row) {
+      this.$confirm(`确定要删除此商品 “${row.goods_name}” 吗?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async () => {
-          const { data: result } = await this.$http.delete('goods/' + id)
+          const { data: result } = await this.$http.delete(
+            'goods/' + row.goods_id
+          )
           if (result.meta.status !== 200) {
             this.$message.error(result.meta.msg)
           }

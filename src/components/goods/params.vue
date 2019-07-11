@@ -98,7 +98,12 @@
                   size="mini"
                   @click="showEditAttrDialog(scope.row)"
                 >编辑</el-button>
-                <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+                <el-button
+                  type="danger"
+                  icon="el-icon-delete"
+                  size="mini"
+                  @click="removeAttr(scope.row)"
+                >删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -379,7 +384,7 @@ export default {
 }
 
 .el-tag {
-  margin: 0 10px 0 0;
+  margin: 5px 10px 5px 0;
 }
 
 .button-new-tag {
@@ -390,7 +395,7 @@ export default {
 }
 
 .input-new-tag {
-  width: 90px;
-  vertical-align: bottom;
+  width: 200px;
+  vertical-align: middle;
 }
 </style>

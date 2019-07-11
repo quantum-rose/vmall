@@ -5,7 +5,8 @@
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>商品管理</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ path: '/goods' }">商品列表</el-breadcrumb-item>
-      <el-breadcrumb-item>添加商品</el-breadcrumb-item>
+      <el-breadcrumb-item>{{goodsId?'编辑商品':'添加商品'}}</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="goodsId">#{{goodsId}}</el-breadcrumb-item>
     </el-breadcrumb>
     <!-- 卡片视图 -->
     <el-card>
@@ -22,12 +23,7 @@
       <!-- 表单 -->
       <el-form :model="addGoodsForm" :rules="formRules" ref="addGoodsFormRef" label-position="top">
         <!-- 选项卡 -->
-        <el-tabs
-          v-model="activeIndex"
-          tab-position="left"
-          :before-leave="beforeTabLeave"
-          @tab-click="tabClicked"
-        >
+        <el-tabs v-model="activeIndex" tab-position="left" :before-leave="beforeTabLeave">
           <!-- 基本信息 -->
           <el-tab-pane label="基本信息" name="0">
             <el-scrollbar :style="'height:' + tabPaneHeight">
@@ -38,6 +34,7 @@
                   :options="cateList"
                   :props="cascaderConfig"
                   clearable
+                  :disabled="goodsId !== undefined"
                   @change="selectedChange"
                 ></el-cascader>
               </el-form-item>
@@ -60,7 +57,7 @@
           <el-tab-pane label="商品参数" name="1">
             <el-scrollbar :style="'height:' + tabPaneHeight">
               <el-form-item :label="item.attr_name" v-for="item in manyAttrs" :key="item.attr_id">
-                <el-checkbox-group v-model="item.attr_vals">
+                <el-checkbox-group v-model="item.attr_value">
                   <el-checkbox
                     :label="a"
                     v-for="(a, i) in item.attr_vals"
@@ -77,7 +74,7 @@
           <el-tab-pane label="商品属性" name="2">
             <el-scrollbar :style="'height:' + tabPaneHeight">
               <el-form-item v-for="item in onlyAttrs" :key="item.attr_id" :label="item.attr_name">
-                <el-input v-model.trim="item.attr_vals"></el-input>
+                <el-input v-model.trim="item.attr_value"></el-input>
               </el-form-item>
             </el-scrollbar>
           </el-tab-pane>
@@ -121,6 +118,8 @@
 export default {
   created() {
     this.getCateList()
+    // 如果路由中有参数，获取商品信息
+    this.goodsId && this.getGoodsInfo()
   },
   mounted() {
     this.setQuillEditorHeight()
@@ -129,6 +128,8 @@ export default {
       this.setQuillEditorHeight()
     }
   },
+  // 路由参数，如果有值说明是编辑操作，否则是添加操作
+  props: ['goodsId'],
   data() {
     return {
       innerHeight: window.innerHeight,
@@ -235,9 +236,22 @@ export default {
       return node.children.length === 0
     },
     // 选中项改变时触发，如果选中的不是三级分类重置为空数组
-    selectedChange() {
+    async selectedChange() {
       if (!this.isSelected) return (this.selectedCate = [])
       this.addGoodsForm.goods_cat = this.selectedCate.join(',')
+      // 获取动态参数
+      let result = await this.getAttrs('many')
+      result.data.forEach(item => {
+        item.attr_vals = item.attr_vals ? item.attr_vals.split(',') : []
+        item.attr_value = item.attr_vals
+      })
+      this.manyAttrs = result.data
+      // 获取静态属性
+      result = await this.getAttrs('only')
+      result.data.forEach(item => {
+        item.attr_value = item.attr_vals
+      })
+      this.onlyAttrs = result.data
     },
     // 切换标签页之前触发
     beforeTabLeave(activeName, oldActiveName) {
@@ -246,20 +260,6 @@ export default {
         return false
       }
       return true
-    },
-    // 点击选项卡时触发
-    async tabClicked(tab) {
-      if (this.activeIndex === '1') {
-        const result = await this.getAttrs('many')
-        result.data.forEach(item => {
-          item.attr_vals = item.attr_vals ? item.attr_vals.split(',') : []
-        })
-        this.manyAttrs = result.data
-      }
-      if (this.activeIndex === '2') {
-        const result = await this.getAttrs('only')
-        this.onlyAttrs = result.data
-      }
     },
     // 获取参数数据
     async getAttrs(sel) {
@@ -301,31 +301,58 @@ export default {
         this.manyAttrs.forEach(item => {
           const attrInfo = {
             attr_id: item.attr_id,
-            attr_value: item.attr_vals.join(',')
+            attr_value: item.attr_value.join(',')
           }
           this.addGoodsForm.attrs.push(attrInfo)
         })
         this.onlyAttrs.forEach(item => {
           const attrInfo = {
             attr_id: item.attr_id,
-            attr_value: item.attr_vals
+            attr_value: item.attr_value
           }
           this.addGoodsForm.attrs.push(attrInfo)
         })
-        const { data: result } = await this.$http.post(
-          'goods',
-          this.addGoodsForm
-        )
-        if (result.meta.status !== 201) {
-          return this.$message.error(result.meta.msg)
-        }
-        this.$message.success(result.meta.msg)
+        console.log(this.addGoodsForm)
+        // const { data: result } = await this.$http.post(
+        //   'goods',
+        //   this.addGoodsForm
+        // )
+        // if (result.meta.status !== 201) {
+        //   return this.$message.error(result.meta.msg)
+        // }
+        // this.$message.success(result.meta.msg)
       })
     },
     // 设置富文本编辑器高度
     setQuillEditorHeight() {
       this.$refs.quillEditor.$el.children[1].children[0].style.height =
         this.innerHeight - 365 + 'px'
+    },
+    // 根据 id 获取编辑操作中的商品数据
+    async getGoodsInfo() {
+      const { data: result } = await this.$http.get('goods/' + this.goodsId)
+      if (result.meta.status !== 200) {
+        return this.$message.error(result.meta.msg)
+      }
+      const goods = result.data
+      this.selectedCate = goods.goods_cat.split(',')
+      // 将数组的每一项转为数字类型
+      this.selectedCate.forEach((item, i, arr) => {
+        arr[i] -= 0
+      })
+      this.addGoodsForm.goods_name = goods.goods_name
+      this.addGoodsForm.goods_cat = goods.goods_cat
+      this.addGoodsForm.goods_price = goods.goods_price
+      this.addGoodsForm.goods_number = goods.goods_number
+      this.addGoodsForm.goods_weight = goods.goods_weight
+      this.addGoodsForm.goods_introduce = goods.goods_introduce
+      const many = goods.attrs.filter(item => item.attr_sel === 'many')
+      many.forEach(item => {
+        item.attr_vals = item.attr_vals ? item.attr_vals.split(',') : []
+        item.attr_value = item.attr_value ? item.attr_value.split(',') : []
+      })
+      this.manyAttrs = many
+      this.onlyAttrs = goods.attrs.filter(item => item.attr_sel === 'only')
     }
   }
 }

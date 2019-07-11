@@ -76,7 +76,7 @@
               type="danger"
               icon="el-icon-delete"
               size="mini"
-              @click="deleteRole(scope.row.id)"
+              @click="deleteRole(scope.row)"
             >删除</el-button>
             <el-button
               type="warning"
@@ -335,14 +335,14 @@ export default {
       })
     },
     // 删除角色
-    deleteRole(id) {
-      this.$confirm('此操作将永久删除该角色, 是否继续?', '提示', {
+    deleteRole(role) {
+      this.$confirm(`确定要删除该角色 “${role.roleName}” 吗？`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async () => {
-          const { data: result } = await this.$http.delete('roles/' + id)
+          const { data: result } = await this.$http.delete('roles/' + role.id)
           if (result.meta.status !== 200) {
             return this.$message.error(result.meta.msg)
           }

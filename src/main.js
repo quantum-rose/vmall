@@ -10,7 +10,7 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
-axios.defaults.baseURL = 'http://47.102.104.11/api/private/v1/'
+axios.defaults.baseURL = 'http://cuihaojie.top:8848/api/private/v1/'
 axios.interceptors.request.use(config => {
   // Do something before request is sent
   config.headers.Authorization = window.sessionStorage.getItem('token')
