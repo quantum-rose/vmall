@@ -100,7 +100,7 @@
           <el-tab-pane label="商品内容" name="4">
             <el-scrollbar :style="'height:' + tabPaneHeight">
               <quill-editor v-model="addGoodsForm.goods_introduce" ref="quillEditor"></quill-editor>
-              <el-button type="primary" class="add-btn" @click="addGoods">添加商品</el-button>
+              <el-button type="primary" class="add-btn" @click="addGoods">{{goodsId?'保存编辑':'添加商品'}}</el-button>
             </el-scrollbar>
           </el-tab-pane>
         </el-tabs>
@@ -312,15 +312,26 @@ export default {
           }
           this.addGoodsForm.attrs.push(attrInfo)
         })
-        console.log(this.addGoodsForm)
-        // const { data: result } = await this.$http.post(
-        //   'goods',
-        //   this.addGoodsForm
-        // )
-        // if (result.meta.status !== 201) {
-        //   return this.$message.error(result.meta.msg)
-        // }
-        // this.$message.success(result.meta.msg)
+        // 根据路由是否传参了来发送不同的请求
+        if (this.goodsId !== undefined) {
+          const { data: result } = await this.$http.put(
+            'goods/' + this.goodsId,
+            this.addGoodsForm
+          )
+          if (result.meta.status !== 200) {
+            return this.$message.error(result.meta.msg)
+          }
+          this.$message.success('商品信息已更新')
+        } else {
+          const { data: result } = await this.$http.post(
+            'goods',
+            this.addGoodsForm
+          )
+          if (result.meta.status !== 201) {
+            return this.$message.error(result.meta.msg)
+          }
+          this.$message.success(result.meta.msg)
+        }
       })
     },
     // 设置富文本编辑器高度
@@ -340,12 +351,13 @@ export default {
       this.selectedCate.forEach((item, i, arr) => {
         arr[i] -= 0
       })
-      this.addGoodsForm.goods_name = goods.goods_name
-      this.addGoodsForm.goods_cat = goods.goods_cat
-      this.addGoodsForm.goods_price = goods.goods_price
-      this.addGoodsForm.goods_number = goods.goods_number
-      this.addGoodsForm.goods_weight = goods.goods_weight
-      this.addGoodsForm.goods_introduce = goods.goods_introduce
+      const goodsForm = this.addGoodsForm
+      goodsForm.goods_name = goods.goods_name
+      goodsForm.goods_cat = goods.goods_cat
+      goodsForm.goods_price = goods.goods_price
+      goodsForm.goods_number = goods.goods_number
+      goodsForm.goods_weight = goods.goods_weight
+      goodsForm.goods_introduce = goods.goods_introduce
       const many = goods.attrs.filter(item => item.attr_sel === 'many')
       many.forEach(item => {
         item.attr_vals = item.attr_vals ? item.attr_vals.split(',') : []

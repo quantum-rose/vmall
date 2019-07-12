@@ -24,20 +24,72 @@
         </el-col>
       </el-row>
       <!-- 表格 -->
-      <el-table :data="ordersList" border stripe :max-height="maxTableHeight">
+      <el-table
+        :data="ordersList"
+        border
+        stripe
+        :max-height="maxTableHeight"
+        @expand-change="getOrderDetail"
+      >
+        <!-- 展开行 -->
+        <el-table-column type="expand">
+          <template #default="scope">
+            <el-form :model="scope.row" label-width="auto">
+              <el-form-item label="发货状态：">
+                <el-switch
+                  v-model="scope.row.is_send"
+                  active-text="已发货"
+                  inactive-text="未发货"
+                  @change="changeSendStatus(scope.row)"
+                ></el-switch>
+              </el-form-item>
+              <el-form-item label="支付状态：">
+                <el-switch
+                  v-model="scope.row.pay_status"
+                  active-text="已付款"
+                  inactive-text="待付款"
+                  @change="changePayStatus(scope.row)"
+                ></el-switch>
+              </el-form-item>
+              <el-form-item label="支付方式：">
+                <el-radio-group
+                  v-model="scope.row.order_pay"
+                  size="small"
+                  @change="changeOrderPay(scope.row)"
+                >
+                  <el-radio-button label="0" :disabled="scope.row.pay_status">未支付</el-radio-button>
+                  <el-radio-button label="1" :disabled="!scope.row.pay_status">支付宝</el-radio-button>
+                  <el-radio-button label="2" :disabled="!scope.row.pay_status">微信</el-radio-button>
+                  <el-radio-button label="3" :disabled="!scope.row.pay_status">银行卡</el-radio-button>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="订单价格：">
+                <el-input-number
+                  v-model="scope.row.order_price"
+                  :precision="2"
+                  :step="0.1"
+                  :max="10000"
+                  :disabled="scope.row.pay_status"
+                  size="small"
+                  @change="changeOrderPrice(scope.row)"
+                ></el-input-number>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
         <el-table-column type="index"></el-table-column>
         <el-table-column prop="order_number" label="订单编号"></el-table-column>
         <el-table-column prop="order_price" label="订单价格(元)" width="102px"></el-table-column>
         <el-table-column label="是否付款" width="79px">
           <template #default="scope">
-            <el-tag type="info" v-if="scope.row.pay_status==='1'">已付款</el-tag>
+            <el-tag type="info" v-if="scope.row.pay_status">已付款</el-tag>
             <el-tag v-else>未付款</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="是否发货" width="79px">
           <template #default="scope">
-            <el-tag v-if="scope.row.is_send==='否'">未发货</el-tag>
-            <el-tag type="info" v-else>已发货</el-tag>
+            <el-tag type="info" v-if="scope.row.is_send">已发货</el-tag>
+            <el-tag v-else>未发货</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="下单时间" width="159px">
@@ -175,6 +227,7 @@ export default {
       progressVisible: false,
       // 物流信息数据
       progressInfo: [],
+      // 对话框高度
       dialogHeight: 'auto'
     }
   },
@@ -197,6 +250,11 @@ export default {
       if (result.meta.status !== 200) {
         return this.$message.error(result.meta.msg)
       }
+      // 将发货状态、支付状态转为布尔类型
+      result.data.goods.forEach(item => {
+        item.is_send = item.is_send === '是'
+        item.pay_status = item.pay_status === '1'
+      })
       this.ordersList = result.data.goods
       this.total = result.data.total
     },
@@ -226,11 +284,65 @@ export default {
     async showProgress() {
       const { data: result } = await this.$http.get('/kuaidi/3834933429711')
       if (result.meta.status !== 200) {
-        this.$message.error(result.meta.msg)
+        return this.$message.error(result.meta.msg)
       }
       this.dialogHeight = result.data.length > 5 ? '360px' : 'auto'
       this.progressInfo = result.data
       this.progressVisible = true
+    },
+    // 获取订单详情
+    async getOrderDetail(row, expandedRows) {
+      if (expandedRows.length > 0) {
+        const { data: result } = await this.$http.get('orders/' + row.order_id)
+        if (result.meta.status !== 200) {
+          return this.$message.error(result.meta.msg)
+        }
+        row.goods = result.data.goods
+      }
+    },
+    // 修改发货状态
+    async changeSendStatus(row) {
+      const flag = await this.changeOrderStatus(row.order_id, {
+        is_send: row.is_send ? '1' : '0',
+        order_price: row.order_price
+      })
+      if (!flag) row.is_send = !row.is_send
+    },
+    // 修改支付状态
+    async changePayStatus(row) {
+      row.order_pay = row.pay_status ? '1' : '0'
+      const flag = await this.changeOrderStatus(row.order_id, {
+        order_pay: row.order_pay,
+        pay_status: row.pay_status ? '1' : '0',
+        order_price: row.order_price
+      })
+      if (!flag) {
+        row.pay_status = !row.pay_status
+        row.order_pay = row.pay_status ? '1' : '0'
+      }
+    },
+    // 更改支付方式
+    async changeOrderPay(row) {
+      this.changeOrderStatus(row.order_id, {
+        order_pay: row.order_pay,
+        order_price: row.order_price
+      })
+    },
+    // 更改订单价格
+    async changeOrderPrice(row) {
+      this.changeOrderStatus(row.order_id, {
+        order_price: row.order_price
+      })
+    },
+    // 发送修改订单状态的请求
+    async changeOrderStatus(id, body) {
+      const { data: result } = await this.$http.put('orders/' + id, body)
+      if (result.meta.status !== 201) {
+        this.$message.error(result.meta.msg)
+        return false
+      }
+      this.$message.success(result.meta.msg)
+      return result.data
     }
   }
 }

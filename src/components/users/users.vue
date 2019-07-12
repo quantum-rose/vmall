@@ -136,21 +136,14 @@
 
     <!-- 分配角色的对话框 -->
     <el-dialog title="分配角色" :visible.sync="allotRoleDialogVisible">
-      <el-row class="vcenter">
-        <el-col :span="5" class="text-right">用户名：</el-col>
-        <el-col :span="19">
+      <el-form label-width="auto">
+        <el-form-item label="用户名：">
           <el-tag type="info">{{userInfo.username}}</el-tag>
-        </el-col>
-      </el-row>
-      <el-row class="vcenter">
-        <el-col :span="5" class="text-right">邮箱：</el-col>
-        <el-col :span="19">
+        </el-form-item>
+        <el-form-item label="邮箱：">
           <el-tag type="info">{{userInfo.email}}</el-tag>
-        </el-col>
-      </el-row>
-      <el-row class="vcenter">
-        <el-col :span="5" class="text-right">角色名称：</el-col>
-        <el-col :span="19">
+        </el-form-item>
+        <el-form-item label="角色名称：">
           <el-select v-model="roleId" placeholder="请选择" size="small">
             <el-option
               v-for="item in rolesList"
@@ -159,8 +152,8 @@
               :value="item.id"
             ></el-option>
           </el-select>
-        </el-col>
-      </el-row>
+        </el-form-item>
+      </el-form>
       <!-- 按钮 -->
       <template #footer class="dialog-footer">
         <el-button @click="allotRoleDialogVisible = false">取 消</el-button>

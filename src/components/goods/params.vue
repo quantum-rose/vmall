@@ -364,15 +364,23 @@ export default {
       this.$message.success(result.meta.msg)
     },
     // 移除参数
-    async removeAttr(row) {
-      const { data: result } = await this.$http.delete(
-        `categories/${this.cateId}/attributes/${row.attr_id}`
-      )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
-      this.$message.success(result.meta.msg)
-      this.getCateAttrs()
+    removeAttr(row) {
+      this.$confirm(`确定要删除此参数 “${row.attr_name}” 吗？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(async () => {
+          const { data: result } = await this.$http.delete(
+            `categories/${this.cateId}/attributes/${row.attr_id}`
+          )
+          if (result.meta.status !== 200) {
+            return this.$message.error(result.meta.msg)
+          }
+          this.$message.success(result.meta.msg)
+          this.getCateAttrs()
+        })
+        .catch(() => this.$message.info('已取消删除'))
     }
   }
 }

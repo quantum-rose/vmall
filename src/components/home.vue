@@ -28,6 +28,7 @@
             :collapse-transition="false"
             router
             :default-active="currentMenu"
+            @open="saveOpenedMenu"
           >
             <el-submenu :index="item.path" v-for="item in menuList" :key="item.id">
               <template #title>
@@ -79,6 +80,8 @@ export default {
       },
       // 导航菜单是否折叠的标识
       isCollapse: false,
+      // 当前展开的子菜单
+      openedMenu: null,
       // 当前被选中的菜单
       currentMenu: null
     }
@@ -112,10 +115,14 @@ export default {
     // welcome 组件创建后触发
     resetCurrentMenu() {
       // 关闭已展开的子导航菜单
-      this.$refs.navMenu.close(this.currentMenu)
+      this.$refs.navMenu.close(this.openedMenu)
       // 重置当前选中菜单项的标识
       this.currentMenu = null
       window.sessionStorage.removeItem('currentMenu')
+    },
+    // 保存当前打开的子菜单
+    saveOpenedMenu(index, indexPath) {
+      this.openedMenu = index
     }
   }
 }
