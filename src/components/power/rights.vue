@@ -13,10 +13,10 @@
         <el-table-column prop="authName" label="权限名称"></el-table-column>
         <el-table-column prop="path" label="路径"></el-table-column>
         <el-table-column prop="level" label="权限等级">
-          <template #default="scope">
-            <el-tag v-if="scope.row.level==0">一级</el-tag>
-            <el-tag v-if="scope.row.level==1" type="success">二级</el-tag>
-            <el-tag v-if="scope.row.level==2" type="warning">三级</el-tag>
+          <template #default="{row}">
+            <el-tag v-if="row.level==0">一级</el-tag>
+            <el-tag v-if="row.level==1" type="success">二级</el-tag>
+            <el-tag v-if="row.level==2" type="warning">三级</el-tag>
           </template>
         </el-table-column>
       </el-table>

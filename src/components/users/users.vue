@@ -37,33 +37,33 @@
         <el-table-column prop="mobile" label="电话"></el-table-column>
         <el-table-column prop="role_name" label="角色"></el-table-column>
         <el-table-column label="状态" width="60px">
-          <template #default="scope">
+          <template #default="{row}">
             <!-- switch状态改变后触发change事件 -->
-            <el-switch v-model="scope.row.mg_state" @change="changeUserState(scope.row)"></el-switch>
+            <el-switch v-model="row.mg_state" @change="changeUserState(row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="173px">
-          <template #default="scope">
+          <template #default="{row}">
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
               title="修改"
-              @click="showEditUserDialog(scope.row.id)"
+              @click="showEditUserDialog(row.id)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               title="删除"
-              @click="removeUser(scope.row)"
+              @click="removeUser(row)"
             ></el-button>
             <el-button
               type="warning"
               icon="el-icon-setting"
               size="mini"
               title="分配角色"
-              @click="showAllotRoleDialog(scope.row)"
+              @click="showAllotRoleDialog(row)"
             ></el-button>
           </template>
         </el-table-column>

@@ -35,25 +35,23 @@
         <el-table-column prop="goods_price" label="商品价格(元)" width="102px"></el-table-column>
         <el-table-column prop="goods_weight" label="商品重量" width="79px"></el-table-column>
         <el-table-column label="创建时间" width="159px">
-          <template
-            #default="scope"
-          >{{scope.row.add_time * 1000 | dateFormat('yyyy-MM-dd hh:mm:ss')}}</template>
+          <template #default="{row}">{{row.add_time * 1000 | dateFormat('yyyy-MM-dd hh:mm:ss')}}</template>
         </el-table-column>
         <el-table-column label="操作" width="119px">
-          <template #default="scope">
+          <template #default="{row}">
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
               title="修改"
-              @click="goEditGoodsPage(scope.row.goods_id)"
+              @click="goEditGoodsPage(row.goods_id)"
             ></el-button>
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               title="删除"
-              @click="removeGoods(scope.row)"
+              @click="removeGoods(row)"
             ></el-button>
           </template>
         </el-table-column>

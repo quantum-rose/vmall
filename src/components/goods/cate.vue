@@ -19,42 +19,33 @@
       <el-table :data="cateList" row-key="cat_id" border stripe :max-height="maxTableHeight">
         <el-table-column prop="cat_name" label="分类名称"></el-table-column>
         <el-table-column label="是否有效">
-          <template #default="scope">
+          <template #default="{row}">
             <i
-              v-if="scope.row.cat_deleted==0"
+              v-if="row.cat_deleted==0"
               style="color:#67C23A;font-size:18px"
               class="el-icon-success"
             ></i>
-            <i
-              v-if="scope.row.cat_deleted==1"
-              style="color:#F56C6C;font-size:18px"
-              class="el-icon-error"
-            ></i>
+            <i v-if="row.cat_deleted==1" style="color:#F56C6C;font-size:18px" class="el-icon-error"></i>
           </template>
         </el-table-column>
         <!-- 排序 -->
         <el-table-column label="排序">
-          <template #default="scope">
-            <el-tag v-if="scope.row.cat_level==0">一级</el-tag>
-            <el-tag v-if="scope.row.cat_level==1" type="success">二级</el-tag>
-            <el-tag v-if="scope.row.cat_level==2" type="warning">三级</el-tag>
+          <template #default="{row}">
+            <el-tag v-if="row.cat_level==0">一级</el-tag>
+            <el-tag v-if="row.cat_level==1" type="success">二级</el-tag>
+            <el-tag v-if="row.cat_level==2" type="warning">三级</el-tag>
           </template>
         </el-table-column>
         <!-- 操作 -->
         <el-table-column label="操作" width="177px">
-          <template #default="scope">
+          <template #default="{row}">
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
-              @click="showEditCateDialog(scope.row)"
+              @click="showEditCateDialog(row)"
             >编辑</el-button>
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              @click="removeCate(scope.row)"
-            >删除</el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeCate(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

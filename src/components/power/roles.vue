@@ -19,15 +19,15 @@
       <el-table :data="rolesList" border stripe :max-height="maxTableHeight">
         <!-- 展开行 -->
         <el-table-column type="expand">
-          <template #default="scope">
+          <template #default="{row}">
             <el-row
               :class="['bdbottom', {'bdtop': i1 === 0}, 'vcenter']"
               :key="item1.id"
-              v-for="(item1, i1) in scope.row.children"
+              v-for="(item1, i1) in row.children"
             >
               <!-- 一级分类 -->
               <el-col :span="4" style="min-width:120px">
-                <el-tag closable @close="removeRight(scope.row, item1.id)">{{item1.authName}}</el-tag>
+                <el-tag closable @close="removeRight(row, item1.id)">{{item1.authName}}</el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <el-col :span="20">
@@ -42,7 +42,7 @@
                     <el-tag
                       type="success"
                       closable
-                      @close="removeRight(scope.row, item2.id)"
+                      @close="removeRight(row, item2.id)"
                     >{{item2.authName}}</el-tag>
                     <i class="el-icon-caret-right"></i>
                   </el-col>
@@ -53,7 +53,7 @@
                       :key="item3.id"
                       v-for="item3 in item2.children"
                       closable
-                      @close="removeRight(scope.row, item3.id)"
+                      @close="removeRight(row, item3.id)"
                     >{{item3.authName}}</el-tag>
                   </el-col>
                 </el-row>
@@ -65,24 +65,19 @@
         <el-table-column prop="roleName" label="角色名称"></el-table-column>
         <el-table-column prop="roleDesc" label="角色描述"></el-table-column>
         <el-table-column label="操作" width="284px">
-          <template #default="scope">
+          <template #default="{row}">
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
-              @click="showEditRoleDialog(scope.row)"
+              @click="showEditRoleDialog(row)"
             >编辑</el-button>
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              @click="deleteRole(scope.row)"
-            >删除</el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteRole(row)">删除</el-button>
             <el-button
               type="warning"
               icon="el-icon-setting"
               size="mini"
-              @click="showAllotRightsDialog(scope.row)"
+              @click="showAllotRightsDialog(row)"
             >分配权限</el-button>
           </template>
         </el-table-column>

@@ -33,45 +33,42 @@
       >
         <!-- 展开行 -->
         <el-table-column type="expand">
-          <template #default="scope">
-            <el-form :model="scope.row" label-width="auto">
+          <template #default="{row}">
+            <el-form :model="row" label-width="auto">
               <el-form-item label="发货状态：">
                 <el-switch
-                  v-model="scope.row.is_send"
+                  v-model="row.is_send"
                   active-text="已发货"
                   inactive-text="未发货"
-                  @change="changeSendStatus(scope.row)"
+                  @change="changeSendStatus(row)"
                 ></el-switch>
               </el-form-item>
               <el-form-item label="支付状态：">
                 <el-switch
-                  v-model="scope.row.pay_status"
+                  v-model="row.pay_status"
                   active-text="已付款"
                   inactive-text="待付款"
-                  @change="changePayStatus(scope.row)"
+                  :disabled="!row.pay_status"
+                  @change="changePayStatus(row)"
                 ></el-switch>
               </el-form-item>
               <el-form-item label="支付方式：">
-                <el-radio-group
-                  v-model="scope.row.order_pay"
-                  size="small"
-                  @change="changeOrderPay(scope.row)"
-                >
-                  <el-radio-button label="0" :disabled="scope.row.pay_status">未支付</el-radio-button>
-                  <el-radio-button label="1" :disabled="!scope.row.pay_status">支付宝</el-radio-button>
-                  <el-radio-button label="2" :disabled="!scope.row.pay_status">微信</el-radio-button>
-                  <el-radio-button label="3" :disabled="!scope.row.pay_status">银行卡</el-radio-button>
+                <el-radio-group v-model="row.order_pay" size="small" @change="changeOrderPay(row)">
+                  <el-radio-button label="0" :disabled="row.pay_status">未支付</el-radio-button>
+                  <el-radio-button label="1" :disabled="!row.pay_status">支付宝</el-radio-button>
+                  <el-radio-button label="2" :disabled="!row.pay_status">微信</el-radio-button>
+                  <el-radio-button label="3" :disabled="!row.pay_status">银行卡</el-radio-button>
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="订单价格：">
                 <el-input-number
-                  v-model="scope.row.order_price"
+                  v-model="row.order_price"
                   :precision="2"
                   :step="0.1"
                   :max="10000"
-                  :disabled="scope.row.pay_status"
+                  :disabled="row.pay_status"
                   size="small"
-                  @change="changeOrderPrice(scope.row)"
+                  @change="changeOrderPrice(row)"
                 ></el-input-number>
               </el-form-item>
             </el-form>
@@ -81,24 +78,22 @@
         <el-table-column prop="order_number" label="订单编号"></el-table-column>
         <el-table-column prop="order_price" label="订单价格(元)" width="102px"></el-table-column>
         <el-table-column label="是否付款" width="79px">
-          <template #default="scope">
-            <el-tag type="info" v-if="scope.row.pay_status">已付款</el-tag>
+          <template #default="{row}">
+            <el-tag type="info" v-if="row.pay_status">已付款</el-tag>
             <el-tag v-else>未付款</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="是否发货" width="79px">
-          <template #default="scope">
-            <el-tag type="info" v-if="scope.row.is_send">已发货</el-tag>
+          <template #default="{row}">
+            <el-tag type="info" v-if="row.is_send">已发货</el-tag>
             <el-tag v-else>未发货</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="下单时间" width="159px">
-          <template
-            #default="scope"
-          >{{scope.row.update_time * 1000 | dateFormat('yyyy-MM-dd hh:mm:ss')}}</template>
+          <template #default="{row}">{{row.update_time * 1000 | dateFormat('yyyy-MM-dd hh:mm:ss')}}</template>
         </el-table-column>
         <el-table-column label="操作" width="119px">
-          <template #default="scope">
+          <template #default="{row}">
             <el-button
               type="primary"
               icon="el-icon-edit"

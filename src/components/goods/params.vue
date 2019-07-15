@@ -35,46 +35,46 @@
           <el-table :data="manyAttrs" border stripe :max-height="maxTableHeight">
             <!-- 展开行 -->
             <el-table-column type="expand">
-              <template #default="scope">
+              <template #default="{row}">
                 <el-tag
                   :key="tag"
-                  v-for="tag in scope.row.attr_vals"
+                  v-for="tag in row.attr_vals"
                   closable
                   :disable-transitions="false"
-                  @close="handleClose(tag, scope.row)"
+                  @close="handleClose(tag, row)"
                 >{{tag}}</el-tag>
                 <el-input
                   class="input-new-tag"
-                  v-if="scope.row.inputVisible"
-                  v-model.trim="scope.row.inputValue"
+                  v-if="row.inputVisible"
+                  v-model.trim="row.inputValue"
                   ref="saveTagInput"
                   size="small"
-                  @keyup.enter.native="handleInputConfirm(scope.row)"
-                  @blur="handleInputConfirm(scope.row)"
+                  @keyup.enter.native="handleInputConfirm(row)"
+                  @blur="handleInputConfirm(row)"
                 ></el-input>
                 <el-button
                   v-else
                   class="button-new-tag"
                   size="small"
-                  @click="showInput(scope.row)"
+                  @click="showInput(row)"
                 >+ New Tag</el-button>
               </template>
             </el-table-column>
             <el-table-column type="index"></el-table-column>
             <el-table-column label="分类参数" prop="attr_name"></el-table-column>
             <el-table-column label="操作" width="177px">
-              <template #default="scope">
+              <template #default="{row}">
                 <el-button
                   type="primary"
                   icon="el-icon-edit"
                   size="mini"
-                  @click="showEditAttrDialog(scope.row)"
+                  @click="showEditAttrDialog(row)"
                 >编辑</el-button>
                 <el-button
                   type="danger"
                   icon="el-icon-delete"
                   size="mini"
-                  @click="removeAttr(scope.row)"
+                  @click="removeAttr(row)"
                 >删除</el-button>
               </template>
             </el-table-column>
@@ -91,18 +91,18 @@
             <el-table-column type="index"></el-table-column>
             <el-table-column label="分类参数" prop="attr_name"></el-table-column>
             <el-table-column label="操作" width="177px">
-              <template #default="scope">
+              <template #default="{row}">
                 <el-button
                   type="primary"
                   icon="el-icon-edit"
                   size="mini"
-                  @click="showEditAttrDialog(scope.row)"
+                  @click="showEditAttrDialog(row)"
                 >编辑</el-button>
                 <el-button
                   type="danger"
                   icon="el-icon-delete"
                   size="mini"
-                  @click="removeAttr(scope.row)"
+                  @click="removeAttr(row)"
                 >删除</el-button>
               </template>
             </el-table-column>
