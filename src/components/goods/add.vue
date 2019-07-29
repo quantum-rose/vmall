@@ -5,13 +5,14 @@
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>商品管理</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ path: '/goods' }">商品列表</el-breadcrumb-item>
-      <el-breadcrumb-item>{{goodsId?'编辑商品':'添加商品'}}</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="goodsId">#{{goodsId}}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{ goodsId ? '编辑商品' : '添加商品' }}</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="goodsId">#{{ goodsId }}</el-breadcrumb-item>
     </el-breadcrumb>
+
     <!-- 卡片视图 -->
     <el-card>
       <!-- 步骤条 -->
-      <el-steps :active="activeIndex-0" align-center>
+      <el-steps :active="activeIndex - 0" align-center>
         <el-step title="基本信息"></el-step>
         <el-step title="商品参数"></el-step>
         <el-step title="商品属性"></el-step>
@@ -91,7 +92,9 @@
                 list-type="picture"
               >
                 <el-button size="small" type="primary">点击上传</el-button>
-                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                <div slot="tip" class="el-upload__tip">
+                  只能上传jpg/png文件，且不超过500kb
+                </div>
               </el-upload>
             </el-scrollbar>
           </el-tab-pane>
@@ -100,7 +103,9 @@
           <el-tab-pane label="商品内容" name="4">
             <el-scrollbar :style="'height:' + tabPaneHeight">
               <quill-editor v-model="addGoodsForm.goods_introduce" ref="quillEditor"></quill-editor>
-              <el-button type="primary" class="add-btn" @click="addGoods">{{goodsId?'保存编辑':'添加商品'}}</el-button>
+              <el-button type="primary" class="add-btn" @click="addGoods">
+                {{ goodsId ? '保存编辑' : '添加商品' }}
+              </el-button>
             </el-scrollbar>
           </el-tab-pane>
         </el-tabs>
@@ -158,21 +163,11 @@ export default {
       },
       // 表单验证规则
       formRules: {
-        goods_name: [
-          { required: true, message: '请输入商品名称', trigger: 'blur' }
-        ],
-        goods_cat: [
-          { required: true, message: '请选择商品分类', trigger: 'blur' }
-        ],
-        goods_price: [
-          { required: true, message: '请输入商品价格', trigger: 'blur' }
-        ],
-        goods_number: [
-          { required: true, message: '请输入商品数量', trigger: 'blur' }
-        ],
-        goods_weight: [
-          { required: true, message: '请输入商品重量', trigger: 'blur' }
-        ]
+        goods_name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
+        goods_cat: [{ required: true, message: '请选择商品分类', trigger: 'blur' }],
+        goods_price: [{ required: true, message: '请输入商品价格', trigger: 'blur' }],
+        goods_number: [{ required: true, message: '请输入商品数量', trigger: 'blur' }],
+        goods_weight: [{ required: true, message: '请输入商品重量', trigger: 'blur' }]
       },
       // 动态属性
       manyAttrs: [],
@@ -208,9 +203,7 @@ export default {
     // 获取商品分类数据
     async getCateList() {
       const { data: result } = await this.$http.get('categories')
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       for (let i = 0; i < result.data.length; i++) {
         if (this.cateFilter(result.data[i])) {
           result.data.splice(i, 1)
@@ -248,9 +241,7 @@ export default {
       this.manyAttrs = result.data
       // 获取静态属性
       result = await this.getAttrs('only')
-      result.data.forEach(item => {
-        item.attr_value = item.attr_vals
-      })
+      result.data.forEach(item => (item.attr_value = item.attr_vals))
       this.onlyAttrs = result.data
     },
     // 切换标签页之前触发
@@ -263,13 +254,10 @@ export default {
     },
     // 获取参数数据
     async getAttrs(sel) {
-      const { data: result } = await this.$http.get(
-        `categories/${this.cateId}/attributes`,
-        { params: { sel: sel } }
-      )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      const { data: result } = await this.$http.get(`categories/${this.cateId}/attributes`, {
+        params: { sel: sel }
+      })
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       return result
     },
     // 图片预览
@@ -285,18 +273,14 @@ export default {
     },
     // 图片上传成功后触发
     uploadSuccess(response) {
-      if (response.meta.status !== 200) {
-        return this.$message.error(response.meta.msg)
-      }
+      if (response.meta.status !== 200) return this.$message.error(response.meta.msg)
       this.$message.success(response.meta.msg)
       this.addGoodsForm.pics.push({ pic: response.data.tmp_path })
     },
     // 添加商品
     addGoods() {
       this.$refs.addGoodsFormRef.validate(async valid => {
-        if (!valid) {
-          return this.$message.warning('请填写必要的表单项')
-        }
+        if (!valid) return this.$message.warning('请填写必要的表单项')
         // 将动态参数和静态属性转为符合要求的格式，并添加进请求表单中
         this.manyAttrs.forEach(item => {
           const attrInfo = {
@@ -314,22 +298,12 @@ export default {
         })
         // 根据路由是否传参了来发送不同的请求
         if (this.goodsId !== undefined) {
-          const { data: result } = await this.$http.put(
-            'goods/' + this.goodsId,
-            this.addGoodsForm
-          )
-          if (result.meta.status !== 200) {
-            return this.$message.error(result.meta.msg)
-          }
+          const { data: result } = await this.$http.put('goods/' + this.goodsId, this.addGoodsForm)
+          if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
           this.$message.success('商品信息已更新')
         } else {
-          const { data: result } = await this.$http.post(
-            'goods',
-            this.addGoodsForm
-          )
-          if (result.meta.status !== 201) {
-            return this.$message.error(result.meta.msg)
-          }
+          const { data: result } = await this.$http.post('goods', this.addGoodsForm)
+          if (result.meta.status !== 201) return this.$message.error(result.meta.msg)
           this.$message.success(result.meta.msg)
         }
       })
@@ -342,15 +316,11 @@ export default {
     // 根据 id 获取编辑操作中的商品数据
     async getGoodsInfo() {
       const { data: result } = await this.$http.get('goods/' + this.goodsId)
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       const goods = result.data
       this.selectedCate = goods.goods_cat.split(',')
       // 将数组的每一项转为数字类型
-      this.selectedCate.forEach((item, i, arr) => {
-        arr[i] -= 0
-      })
+      this.selectedCate.forEach((item, i, arr) => (arr[i] -= 0))
       const goodsForm = this.addGoodsForm
       goodsForm.goods_name = goods.goods_name
       goodsForm.goods_cat = goods.goods_cat

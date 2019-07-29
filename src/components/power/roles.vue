@@ -21,29 +21,27 @@
         <el-table-column type="expand">
           <template #default="{row}">
             <el-row
-              :class="['bdbottom', {'bdtop': i1 === 0}, 'vcenter']"
+              :class="['bdbottom', { bdtop: i1 === 0 }, 'vcenter']"
               :key="item1.id"
               v-for="(item1, i1) in row.children"
             >
               <!-- 一级分类 -->
               <el-col :span="4" style="min-width:120px">
-                <el-tag closable @close="removeRight(row, item1.id)">{{item1.authName}}</el-tag>
+                <el-tag closable @close="removeRight(row, item1.id)">{{ item1.authName }}</el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <el-col :span="20">
                 <el-row
                   style="padding:5px 0 5px 0"
-                  :class="[{'bdtop': i2 !== 0}, 'vcenter']"
+                  :class="[{ bdtop: i2 !== 0 }, 'vcenter']"
                   :key="item2.id"
                   v-for="(item2, i2) in item1.children"
                 >
                   <!-- 二级分类 -->
                   <el-col :span="5" style="min-width:120px">
-                    <el-tag
-                      type="success"
-                      closable
-                      @close="removeRight(row, item2.id)"
-                    >{{item2.authName}}</el-tag>
+                    <el-tag type="success" closable @close="removeRight(row, item2.id)">{{
+                      item2.authName
+                    }}</el-tag>
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <!-- 三级分类 -->
@@ -54,7 +52,8 @@
                       v-for="item3 in item2.children"
                       closable
                       @close="removeRight(row, item3.id)"
-                    >{{item3.authName}}</el-tag>
+                      >{{ item3.authName }}</el-tag
+                    >
                   </el-col>
                 </el-row>
               </el-col>
@@ -71,14 +70,18 @@
               icon="el-icon-edit"
               size="mini"
               @click="showEditRoleDialog(row)"
-            >编辑</el-button>
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteRole(row)">删除</el-button>
+              >编辑</el-button
+            >
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteRole(row)"
+              >删除</el-button
+            >
             <el-button
               type="warning"
               icon="el-icon-setting"
               size="mini"
               @click="showAllotRightsDialog(row)"
-            >分配权限</el-button>
+              >分配权限</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -208,9 +211,7 @@ export default {
     // 获取角色数据列表
     async getRolesList() {
       const { data: result } = await this.$http.get('roles')
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       result.data.forEach(item => this.rightsFilter(item))
       this.rolesList = result.data
     },
@@ -231,12 +232,8 @@ export default {
     },
     // 取消指定角色的指定权限
     async removeRight(role, rightId) {
-      const { data: result } = await this.$http.delete(
-        `roles/${role.id}/rights/${rightId}`
-      )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      const { data: result } = await this.$http.delete(`roles/${role.id}/rights/${rightId}`)
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.$message.success(result.meta.msg)
       // 用同样的方法过滤权限数据
       // 这里的返回值不包括角色信息，所以一级权限的过滤要在 rightsFilter 外部完成
@@ -253,9 +250,7 @@ export default {
       this.currentRole = role
       // 获取权限树
       const { data: result } = await this.$http.get('rights/tree')
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.rightsList = result.data
       // 获取当前角色已拥有的位于权限树中叶节点对应的权限 id
       this.getDefaultCheckedKeys(role, this.defaultCheckedKeys)
@@ -275,13 +270,10 @@ export default {
         ...this.$refs.rightsTreeRef.getHalfCheckedKeys(),
         ...this.$refs.rightsTreeRef.getCheckedKeys()
       ]
-      const { data: result } = await this.$http.post(
-        `roles/${this.currentRole.id}/rights`,
-        { rids: keys.join(',') }
-      )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      const { data: result } = await this.$http.post(`roles/${this.currentRole.id}/rights`, {
+        rids: keys.join(',')
+      })
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.$message.success(result.meta.msg)
       this.getRolesList()
       this.allotRightsDialogVisible = false
@@ -294,13 +286,8 @@ export default {
     addRole() {
       this.$refs.addRoleFormRef.validate(async valid => {
         if (!valid) return
-        const { data: result } = await this.$http.post(
-          'roles',
-          this.addRoleForm
-        )
-        if (result.meta.status !== 201) {
-          return this.$message.error(result.meta.msg)
-        }
+        const { data: result } = await this.$http.post('roles', this.addRoleForm)
+        if (result.meta.status !== 201) return this.$message.error(result.meta.msg)
         this.$message.success(result.meta.msg)
         this.getRolesList()
         this.addRoleDialogVisible = false
@@ -321,9 +308,7 @@ export default {
           'roles/' + this.currentRole.id,
           this.editRoleForm
         )
-        if (result.meta.status !== 200) {
-          return this.$message.error(result.meta.msg)
-        }
+        if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
         this.$message.success('角色修改成功')
         this.getRolesList()
         this.editRoleDialogVisible = false
@@ -338,9 +323,7 @@ export default {
       })
         .then(async () => {
           const { data: result } = await this.$http.delete('roles/' + role.id)
-          if (result.meta.status !== 200) {
-            return this.$message.error(result.meta.msg)
-          }
+          if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
           this.$message.success(result.meta.msg)
           this.getRolesList()
         })

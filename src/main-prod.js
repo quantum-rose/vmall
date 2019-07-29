@@ -1,19 +1,23 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import './plugins/element.js'
-import '../src/assets/fonts/iconfont.css'
 import axios from 'axios'
 import VueQuillEditor from 'vue-quill-editor'
+import NProgress from 'nprogress'
 // require styles
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
+import './assets/css/global.less'
+import './assets/fonts/iconfont.css'
 
 axios.defaults.baseURL = 'http://cuihaojie.top:8848/api/private/v1/'
 axios.interceptors.request.use(config => {
+  // 显示进度条
+  NProgress.start()
   // Do something before request is sent
   config.headers.Authorization = window.sessionStorage.getItem('token')
+  return config
+})
+axios.interceptors.response.use(config => {
+  NProgress.done()
   return config
 })
 
@@ -23,14 +27,10 @@ Vue.prototype.$http = axios
 Vue.filter('dateFormat', function (date, format) {
   if (typeof date === 'string') {
     var mts = date.match(/(\/Date\((\d+)\)\/)/)
-    if (mts && mts.length >= 3) {
-      date = parseInt(mts[2])
-    }
+    if (mts && mts.length >= 3) date = parseInt(mts[2])
   }
   date = new Date(date)
-  if (!date || date.toUTCString() === 'Invalid Date') {
-    return ''
-  }
+  if (!date || date.toUTCString() === 'Invalid Date') return ''
   var map = {
     'M': date.getMonth() + 1,
     'd': date.getDate(),
@@ -48,9 +48,7 @@ Vue.filter('dateFormat', function (date, format) {
         v = v.substr(v.length - 2)
       }
       return v
-    } else if (t === 'y') {
-      return (date.getFullYear() + '').substr(4 - all.length)
-    }
+    } else if (t === 'y') return (date.getFullYear() + '').substr(4 - all.length)
     return all
   })
   return format

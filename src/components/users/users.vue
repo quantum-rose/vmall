@@ -19,7 +19,13 @@
             @clear="getUserList"
           >
             <template #append>
-              <el-button icon="el-icon-search" @click="queryInfo.pagenum=1;getUserList()"></el-button>
+              <el-button
+                icon="el-icon-search"
+                @click="
+                  queryInfo.pagenum = 1
+                  getUserList()
+                "
+              ></el-button>
             </template>
           </el-input>
         </el-col>
@@ -138,10 +144,10 @@
     <el-dialog title="分配角色" :visible.sync="allotRoleDialogVisible">
       <el-form label-width="auto">
         <el-form-item label="用户名：">
-          <el-tag type="info">{{userInfo.username}}</el-tag>
+          <el-tag type="info">{{ userInfo.username }}</el-tag>
         </el-form-item>
         <el-form-item label="邮箱：">
-          <el-tag type="info">{{userInfo.email}}</el-tag>
+          <el-tag type="info">{{ userInfo.email }}</el-tag>
         </el-form-item>
         <el-form-item label="角色名称：">
           <el-select v-model="roleId" placeholder="请选择" size="small">
@@ -246,9 +252,7 @@ export default {
       const { data: result } = await this.$http.get('users', {
         params: this.queryInfo
       })
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.userList = result.data.users
       this.total = result.data.total
     },
@@ -282,13 +286,8 @@ export default {
     addUser() {
       this.$refs.addUserFormRef.validate(async valid => {
         if (!valid) return
-        const { data: result } = await this.$http.post(
-          'users',
-          this.addUserForm
-        )
-        if (result.meta.status !== 201) {
-          return this.$message.error(result.meta.msg)
-        }
+        const { data: result } = await this.$http.post('users', this.addUserForm)
+        if (result.meta.status !== 201) return this.$message.error(result.meta.msg)
         this.$message.success(result.meta.msg)
         this.getUserList()
         this.addUserDialogVisible = false
@@ -297,9 +296,7 @@ export default {
     // 展示修改用户对话框，并填充数据
     async showEditUserDialog(id) {
       const { data: result } = await this.$http.get('users/' + id)
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.editUserForm = result.data
       this.editUserDialogVisible = true
     },
@@ -307,16 +304,11 @@ export default {
     editUserInfo() {
       this.$refs.editUserFormRef.validate(async valid => {
         if (!valid) return
-        const { data: result } = await this.$http.put(
-          'users/' + this.editUserForm.id,
-          {
-            email: this.editUserForm.email,
-            mobile: this.editUserForm.mobile
-          }
-        )
-        if (result.meta.status !== 200) {
-          return this.$message.error
-        }
+        const { data: result } = await this.$http.put('users/' + this.editUserForm.id, {
+          email: this.editUserForm.email,
+          mobile: this.editUserForm.mobile
+        })
+        if (result.meta.status !== 200) return this.$message.error
         this.$message.success(result.meta.msg)
         this.getUserList()
         this.editUserDialogVisible = false
@@ -324,26 +316,18 @@ export default {
     },
     // 删除用户
     removeUser(row) {
-      this.$confirm(
-        `此操作将永久删除该用户 “${row.username}”, 是否继续?`,
-        '提示',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
+      this.$confirm(`此操作将永久删除该用户 “${row.username}”, 是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
         .then(async () => {
           const { data: result } = await this.$http.delete('users/' + row.id)
-          if (result.meta.status !== 200) {
-            return this.$message.error(result.meta.msg)
-          }
+          if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
           this.$message.success(result.meta.msg)
           let pagenum = this.queryInfo.pagenum
           let pagesize = this.queryInfo.pagesize
-          if (pagenum * pagesize - this.total + 1 >= pagesize) {
-            this.queryInfo.pagenum--
-          }
+          if (pagenum * pagesize - this.total + 1 >= pagesize) this.queryInfo.pagenum--
           this.getUserList()
         })
         .catch(() => this.$message.info('已取消删除'))
@@ -351,24 +335,17 @@ export default {
     // 展示分配权限的对话框
     async showAllotRoleDialog(userInfo) {
       const { data: result } = await this.$http.get('roles')
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.rolesList = result.data
       this.userInfo = userInfo
       this.allotRoleDialogVisible = true
     },
     // 分配角色
     async allotRole() {
-      const { data: result } = await this.$http.put(
-        `users/${this.userInfo.id}/role`,
-        {
-          rid: this.roleId
-        }
-      )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      const { data: result } = await this.$http.put(`users/${this.userInfo.id}/role`, {
+        rid: this.roleId
+      })
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.$message.success(result.meta.msg)
       this.getUserList()
       this.allotRoleDialogVisible = false

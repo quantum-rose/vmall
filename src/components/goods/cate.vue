@@ -21,19 +21,23 @@
         <el-table-column label="是否有效">
           <template #default="{row}">
             <i
-              v-if="row.cat_deleted==0"
+              v-if="row.cat_deleted == 0"
               style="color:#67C23A;font-size:18px"
               class="el-icon-success"
             ></i>
-            <i v-if="row.cat_deleted==1" style="color:#F56C6C;font-size:18px" class="el-icon-error"></i>
+            <i
+              v-if="row.cat_deleted == 1"
+              style="color:#F56C6C;font-size:18px"
+              class="el-icon-error"
+            ></i>
           </template>
         </el-table-column>
         <!-- 排序 -->
         <el-table-column label="排序">
           <template #default="{row}">
-            <el-tag v-if="row.cat_level==0">一级</el-tag>
-            <el-tag v-if="row.cat_level==1" type="success">二级</el-tag>
-            <el-tag v-if="row.cat_level==2" type="warning">三级</el-tag>
+            <el-tag v-if="row.cat_level == 0">一级</el-tag>
+            <el-tag v-if="row.cat_level == 1" type="success">二级</el-tag>
+            <el-tag v-if="row.cat_level == 2" type="warning">三级</el-tag>
           </template>
         </el-table-column>
         <!-- 操作 -->
@@ -44,8 +48,11 @@
               icon="el-icon-edit"
               size="mini"
               @click="showEditCateDialog(row)"
-            >编辑</el-button>
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeCate(row)">删除</el-button>
+              >编辑</el-button
+            >
+            <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeCate(row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -151,9 +158,7 @@ export default {
       catId: null,
       // 表单验证规则
       formRules: {
-        cat_name: [
-          { required: true, message: '请输入分类名称', trigger: 'blur' }
-        ]
+        cat_name: [{ required: true, message: '请输入分类名称', trigger: 'blur' }]
       },
       // 层级选择器配置
       cascaderConfig: {
@@ -180,9 +185,7 @@ export default {
       const { data: result } = await this.$http.get('categories', {
         params: this.queryInfo
       })
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.cateList = result.data.result
       this.total = result.data.total
     },
@@ -218,9 +221,7 @@ export default {
       const { data: result } = await this.$http.get('categories', {
         params: { type: 2 }
       })
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.parentCateList = result.data
     },
     // 添加分类
@@ -230,21 +231,13 @@ export default {
         // 获取层级选择器选择结果数组的长度
         const length = this.selectedParentCateId.length
         // 长度大于0，说明选择了，父级 id 为数组最后一项
-        if (length > 0) {
-          this.addCateForm.cat_pid = this.selectedParentCateId[length - 1]
-        } else {
-          // 没选择，则作为一级分类，父级 id 为0
-          this.addCateForm.cat_pid = 0
-        }
+        if (length > 0) this.addCateForm.cat_pid = this.selectedParentCateId[length - 1]
+        // 没选择，则作为一级分类，父级 id 为0
+        else this.addCateForm.cat_pid = 0
         // 分类层级刚好等于长度
         this.addCateForm.cat_level = length
-        const { data: result } = await this.$http.post(
-          'categories',
-          this.addCateForm
-        )
-        if (result.meta.status !== 201) {
-          return this.$message.error(result.meta.msg)
-        }
+        const { data: result } = await this.$http.post('categories', this.addCateForm)
+        if (result.meta.status !== 201) return this.$message.error(result.meta.msg)
         this.$message.success(result.meta.msg)
         this.getCateList()
         this.addCateDialogVisible = false
@@ -258,13 +251,8 @@ export default {
     },
     // 编辑分类
     async editCate() {
-      const { data: result } = await this.$http.put(
-        'categories/' + this.catId,
-        this.editCateForm
-      )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      const { data: result } = await this.$http.put('categories/' + this.catId, this.editCateForm)
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.$message.success(result.meta.msg)
       this.getCateList()
       this.editCateDialogVisible = false
@@ -277,19 +265,12 @@ export default {
         type: 'warning'
       })
         .then(async () => {
-          const { data: result } = await this.$http.delete(
-            'categories/' + row.cat_id
-          )
-          if (result.meta.status !== 200) {
-            return this.$message.error(result.meta.msg)
-          }
+          const { data: result } = await this.$http.delete('categories/' + row.cat_id)
+          if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
           this.$message.success(result.meta.msg)
           let pagenum = this.queryInfo.pagenum
           let pagesize = this.queryInfo.pagesize
-          if (
-            pagenum * pagesize - this.total + 1 >= pagesize &&
-            row.cat_level === 0
-          ) {
+          if (pagenum * pagesize - this.total + 1 >= pagesize && row.cat_level === 0) {
             this.queryInfo.pagenum--
           }
           this.getCateList()

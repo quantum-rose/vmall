@@ -27,11 +27,9 @@
       <el-tabs v-model="activeName" @tab-click="tabClicked">
         <!-- 动态属性 -->
         <el-tab-pane label="动态属性" name="many" :disabled="!isSelected">
-          <el-button
-            type="primary"
-            :disabled="!isSelected"
-            @click="addAttrDialogVisible = true"
-          >添加属性</el-button>
+          <el-button type="primary" :disabled="!isSelected" @click="addAttrDialogVisible = true"
+            >添加属性</el-button
+          >
           <el-table :data="manyAttrs" border stripe :max-height="maxTableHeight">
             <!-- 展开行 -->
             <el-table-column type="expand">
@@ -42,7 +40,8 @@
                   closable
                   :disable-transitions="false"
                   @close="handleClose(tag, row)"
-                >{{tag}}</el-tag>
+                  >{{ tag }}</el-tag
+                >
                 <el-input
                   class="input-new-tag"
                   v-if="row.inputVisible"
@@ -52,12 +51,9 @@
                   @keyup.enter.native="handleInputConfirm(row)"
                   @blur="handleInputConfirm(row)"
                 ></el-input>
-                <el-button
-                  v-else
-                  class="button-new-tag"
-                  size="small"
-                  @click="showInput(row)"
-                >+ New Tag</el-button>
+                <el-button v-else class="button-new-tag" size="small" @click="showInput(row)"
+                  >+ New Tag</el-button
+                >
               </template>
             </el-table-column>
             <el-table-column type="index"></el-table-column>
@@ -69,24 +65,20 @@
                   icon="el-icon-edit"
                   size="mini"
                   @click="showEditAttrDialog(row)"
-                >编辑</el-button>
-                <el-button
-                  type="danger"
-                  icon="el-icon-delete"
-                  size="mini"
-                  @click="removeAttr(row)"
-                >删除</el-button>
+                  >编辑</el-button
+                >
+                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeAttr(row)"
+                  >删除</el-button
+                >
               </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
         <!-- 静态参数 -->
         <el-tab-pane label="静态参数" name="only" :disabled="!isSelected">
-          <el-button
-            type="primary"
-            :disabled="!isSelected"
-            @click="addAttrDialogVisible = true"
-          >添加参数</el-button>
+          <el-button type="primary" :disabled="!isSelected" @click="addAttrDialogVisible = true"
+            >添加参数</el-button
+          >
           <el-table :data="onlyAttrs" border stripe :max-height="maxTableHeight">
             <el-table-column type="index"></el-table-column>
             <el-table-column label="分类参数" prop="attr_name"></el-table-column>
@@ -97,13 +89,11 @@
                   icon="el-icon-edit"
                   size="mini"
                   @click="showEditAttrDialog(row)"
-                >编辑</el-button>
-                <el-button
-                  type="danger"
-                  icon="el-icon-delete"
-                  size="mini"
-                  @click="removeAttr(row)"
-                >删除</el-button>
+                  >编辑</el-button
+                >
+                <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeAttr(row)"
+                  >删除</el-button
+                >
               </template>
             </el-table-column>
           </el-table>
@@ -113,7 +103,7 @@
 
     <!-- 添加参数的对话框 -->
     <el-dialog
-      :title="'添加'+titleText"
+      :title="'添加' + titleText"
       :visible.sync="addAttrDialogVisible"
       @close="resetForm('addAttrFormRef')"
     >
@@ -131,7 +121,7 @@
     </el-dialog>
 
     <!-- 编辑参数的对话框 -->
-    <el-dialog :title="'编辑'+titleText" :visible.sync="editAttrDialogVisible">
+    <el-dialog :title="'编辑' + titleText" :visible.sync="editAttrDialogVisible">
       <!-- 表单 -->
       <el-form :model="editAttrForm" :rules="formRules" ref="editAttrFormRef" label-width="auto">
         <el-form-item :label="titleText" prop="attr_name">
@@ -222,9 +212,7 @@ export default {
     // 获取分类信息数据
     async getCateList() {
       const { data: result } = await this.$http.get('categories')
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       for (let i = 0; i < result.data.length; i++) {
         if (this.cateFilter(result.data[i])) {
           result.data.splice(i, 1)
@@ -261,13 +249,10 @@ export default {
     },
     // 获取分类参数
     async getCateAttrs() {
-      const { data: result } = await this.$http.get(
-        `categories/${this.cateId}/attributes`,
-        { params: { sel: this.activeName } }
-      )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      const { data: result } = await this.$http.get(`categories/${this.cateId}/attributes`, {
+        params: { sel: this.activeName }
+      })
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       result.data.forEach(item => {
         item.attr_vals = item.attr_vals ? item.attr_vals.split(',') : []
         item.inputVisible = false
@@ -288,9 +273,7 @@ export default {
           `categories/${this.cateId}/attributes`,
           this.addAttrForm
         )
-        if (result.meta.status !== 201) {
-          return this.$message.error(result.meta.msg)
-        }
+        if (result.meta.status !== 201) return this.$message.error(result.meta.msg)
         this.$message.success(result.meta.msg)
         this.getCateAttrs()
         this.addAttrDialogVisible = false
@@ -312,9 +295,7 @@ export default {
           `categories/${this.cateId}/attributes/${this.attrId}`,
           this.editAttrForm
         )
-        if (result.meta.status !== 200) {
-          return this.$message.error(result.meta.msg)
-        }
+        if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
         this.$message.success(result.meta.msg)
         this.getCateAttrs()
         this.editAttrDialogVisible = false
@@ -331,9 +312,7 @@ export default {
           attr_vals: row.attr_vals.join(',')
         }
       )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.$message.success(result.meta.msg)
     },
     // 切换为输入框
@@ -358,9 +337,7 @@ export default {
           attr_vals: row.attr_vals.join(',')
         }
       )
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.$message.success(result.meta.msg)
     },
     // 移除参数
@@ -374,9 +351,7 @@ export default {
           const { data: result } = await this.$http.delete(
             `categories/${this.cateId}/attributes/${row.attr_id}`
           )
-          if (result.meta.status !== 200) {
-            return this.$message.error(result.meta.msg)
-          }
+          if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
           this.$message.success(result.meta.msg)
           this.getCateAttrs()
         })

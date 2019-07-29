@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-card :style="'height:'+cardHeight">
-      <el-scrollbar :style="'height:'+cardHeight">
+    <el-card :style="'height:' + cardHeight">
+      <el-scrollbar :style="'height:' + cardHeight">
         <el-alert title="Welcome!" type="success" :closable="false"></el-alert>
         <el-calendar></el-calendar>
       </el-scrollbar>

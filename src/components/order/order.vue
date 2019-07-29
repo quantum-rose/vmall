@@ -18,7 +18,13 @@
             @clear="getOrdersList"
           >
             <template #append>
-              <el-button icon="el-icon-search" @click="queryInfo.pagenum=1;getOrdersList()"></el-button>
+              <el-button
+                icon="el-icon-search"
+                @click="
+                  queryInfo.pagenum = 1
+                  getOrdersList()
+                "
+              ></el-button>
             </template>
           </el-input>
         </el-col>
@@ -90,7 +96,9 @@
           </template>
         </el-table-column>
         <el-table-column label="下单时间" width="159px">
-          <template #default="{row}">{{row.update_time * 1000 | dateFormat('yyyy-MM-dd hh:mm:ss')}}</template>
+          <template #default="{row}">{{
+            (row.update_time * 1000) | dateFormat('yyyy-MM-dd hh:mm:ss')
+          }}</template>
         </el-table-column>
         <el-table-column label="操作" width="119px">
           <template #default="{row}">
@@ -160,11 +168,9 @@
     <el-dialog title="物流信息" :visible.sync="progressVisible" ref="dialogRef">
       <el-scrollbar :style="'height:' + dialogHeight">
         <el-timeline>
-          <el-timeline-item
-            v-for="(item, i) in progressInfo"
-            :key="i"
-            :timestamp="item.time"
-          >{{item.context}}</el-timeline-item>
+          <el-timeline-item v-for="(item, i) in progressInfo" :key="i" :timestamp="item.time">{{
+            item.context
+          }}</el-timeline-item>
         </el-timeline>
       </el-scrollbar>
     </el-dialog>
@@ -203,12 +209,8 @@ export default {
       },
       // 表单验证规则
       formRules: {
-        address: [
-          { required: true, message: '请选择省市区/县', trigger: 'blur' }
-        ],
-        addressDetail: [
-          { required: true, message: '请填写详细地址', trigger: 'blur' }
-        ]
+        address: [{ required: true, message: '请选择省市区/县', trigger: 'blur' }],
+        addressDetail: [{ required: true, message: '请填写详细地址', trigger: 'blur' }]
       },
       // 省市区/县数据树
       cityData,
@@ -242,9 +244,7 @@ export default {
       const { data: result } = await this.$http.get('orders', {
         params: this.queryInfo
       })
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       // 将发货状态、支付状态转为布尔类型
       result.data.goods.forEach(item => {
         item.is_send = item.is_send === '是'
@@ -278,9 +278,7 @@ export default {
     // 展示物流信息对话框
     async showProgress() {
       const { data: result } = await this.$http.get('/kuaidi/3834933429711')
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.dialogHeight = result.data.length > 5 ? '360px' : 'auto'
       this.progressInfo = result.data
       this.progressVisible = true
@@ -289,9 +287,7 @@ export default {
     async getOrderDetail(row, expandedRows) {
       if (expandedRows.length > 0) {
         const { data: result } = await this.$http.get('orders/' + row.order_id)
-        if (result.meta.status !== 200) {
-          return this.$message.error(result.meta.msg)
-        }
+        if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
         row.goods = result.data.goods
       }
     },

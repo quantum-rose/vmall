@@ -11,11 +11,11 @@
     </el-header>
     <el-container>
       <!-- 侧边栏 -->
-      <el-aside :width="isCollapse?'64px':'200px'">
+      <el-aside :width="isCollapse ? '64px' : '200px'">
         <el-scrollbar style="height:100%;">
           <!-- 折叠和展开菜单的按钮 -->
           <div class="toggle-menu" @click="toggleMenu">
-            <i :class="isCollapse?'el-icon-s-unfold':'el-icon-s-fold'"></i>
+            <i :class="isCollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold'"></i>
           </div>
           <!-- 导航菜单 -->
           <el-menu
@@ -33,16 +33,16 @@
             <el-submenu :index="item.path" v-for="item in menuList" :key="item.id">
               <template #title>
                 <i :class="menuIcon[item.id]"></i>
-                <span>{{item.authName}}</span>
+                <span>{{ item.authName }}</span>
               </template>
               <el-menu-item
-                :index="'/'+subitem.path"
+                :index="'/' + subitem.path"
                 v-for="subitem in item.children"
                 :key="subitem.id"
-                @click="saveNavStatus('/'+subitem.path)"
+                @click="saveNavStatus('/' + subitem.path)"
               >
                 <i class="el-icon-menu"></i>
-                <span>{{subitem.authName}}</span>
+                <span>{{ subitem.authName }}</span>
               </el-menu-item>
             </el-submenu>
           </el-menu>
@@ -98,9 +98,7 @@ export default {
     // 获取导航菜单数据
     async getMenus() {
       const { data: result } = await this.$http.get('menus')
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.menuList = result.data
     },
     // 折叠或展开菜单

@@ -41,17 +41,14 @@ export default {
     }
     return {
       avatarSize: 130,
-      avatarUrl:
-        'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+      avatarUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       loginForm: {
         username: '',
         password: ''
       },
       // 表单验证
       loginFormRules: {
-        username: [
-          { required: true, message: '请输入登录账号', trigger: 'blur' }
-        ],
+        username: [{ required: true, message: '请输入登录账号', trigger: 'blur' }],
         password: [
           { required: true, message: '请输入登录密码', trigger: 'blur' },
           { validator: checkPassword, trigger: 'blur' }
@@ -73,9 +70,7 @@ export default {
         // 发送请求，解构赋值data
         const { data: result } = await this.$http.post('login', this.loginForm)
         // 如果状态不为200，提示信息并退出
-        if (result.meta.status !== 200) {
-          return this.$message.error(result.meta.msg)
-        }
+        if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
         // 登陆成功
         this.$message.success('登录成功!')
         // 保存token

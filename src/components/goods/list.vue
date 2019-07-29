@@ -18,7 +18,13 @@
             @clear="getGoodsList"
           >
             <template #append>
-              <el-button icon="el-icon-search" @click="queryInfo.pagenum=1;getGoodsList()"></el-button>
+              <el-button
+                icon="el-icon-search"
+                @click="
+                  queryInfo.pagenum = 1
+                  getGoodsList()
+                "
+              ></el-button>
             </template>
           </el-input>
         </el-col>
@@ -35,7 +41,9 @@
         <el-table-column prop="goods_price" label="商品价格(元)" width="102px"></el-table-column>
         <el-table-column prop="goods_weight" label="商品重量" width="79px"></el-table-column>
         <el-table-column label="创建时间" width="159px">
-          <template #default="{row}">{{row.add_time * 1000 | dateFormat('yyyy-MM-dd hh:mm:ss')}}</template>
+          <template #default="{row}">{{
+            (row.add_time * 1000) | dateFormat('yyyy-MM-dd hh:mm:ss')
+          }}</template>
         </el-table-column>
         <el-table-column label="操作" width="119px">
           <template #default="{row}">
@@ -108,9 +116,7 @@ export default {
       const { data: result } = await this.$http.get('goods', {
         params: this.queryInfo
       })
-      if (result.meta.status !== 200) {
-        return this.$message.error(result.meta.msg)
-      }
+      if (result.meta.status !== 200) return this.$message.error(result.meta.msg)
       this.goodsList = result.data.goods
       this.total = result.data.total
     },
@@ -144,12 +150,8 @@ export default {
         type: 'warning'
       })
         .then(async () => {
-          const { data: result } = await this.$http.delete(
-            'goods/' + row.goods_id
-          )
-          if (result.meta.status !== 200) {
-            this.$message.error(result.meta.msg)
-          }
+          const { data: result } = await this.$http.delete('goods/' + row.goods_id)
+          if (result.meta.status !== 200) this.$message.error(result.meta.msg)
           this.$message.success(result.meta.msg)
           this.getGoodsList()
         })

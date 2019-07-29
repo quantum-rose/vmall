@@ -19,9 +19,7 @@ export default {
     // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('main'))
     const { data: result } = await this.$http.get('reports/type/1')
-    if (result.meta.status !== 200) {
-      this.$message.error(result.meta.msg)
-    }
+    if (result.meta.status !== 200) this.$message.error(result.meta.msg)
     const option = result.data
     // 配置信息
     option.title = { text: '用户来源' }
